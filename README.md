@@ -2,13 +2,17 @@
 
 wtor is a R-language client for the World Trade Organization data APIs. You can find more information about the API, as well as get your API key here: https://apiportal.wto.org/ 
 
-By Miguel Fabián Salazar - miguel@fabiansalazar.es - [fabiansalazar.es](https://fabiansalazar.es).
-
-
+By Miguel Fabián Salazar - miguel@fabiansalazar.es - [fabiansalazar.es](https://fabiansalazar.es) - GPL v3
 
 # Install
 
-To install, run: `remotes::install_github("fabiansalazares/wtor")`
+Run the following on your R terminal: `remotes::install_github("fabiansalazares/wtor")`
+
+# To-do
+
+* Request pagination for large amounts of datapoints.
+* Reporting and partner economies by ISO code.
+* Implement unimplemented APIs. Currently only the Timeseries API is fully working.
 
 # Timeseries API
 
@@ -35,6 +39,8 @@ Product/sectors | Yes
 Years | Yes 
 Value flags | Yes 
 
+
+
 ## Examples
 
 #### Retrieve the list of all available indicators:
@@ -43,13 +49,12 @@ Value flags | Yes
 
 ### Bilateral trade between two countries, by HS6 product code:
 
-`wtor::get_timeseries_data(code = "HS_M_0100", reporting_economies="United States of America", partner_economies = "Spain", products_or_sectors = "HS6`)
+`wtor::get_timeseries_data(code = "HS_M_0100", reporting_economies="United States of America", partner_economies = "Spain", products_or_sectors = "HS6")`
 
 
 # ePing
 
 ## Implemented endpoints
-
 
 # Quantitative Restrictions (QR)
 
