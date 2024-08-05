@@ -82,7 +82,9 @@ get_timeseries_data <- function(
     max_records=10000, # max maximum number of records returned heading_style="M",
     heading_style="M", # head heading style
     meta=FALSE, # include metadata,
-    nocache=T
+    nocache=F,
+    nopagination=F,
+    pageitems = 10000
     ) {
 
   if(is.null(code)) {
@@ -96,7 +98,6 @@ get_timeseries_data <- function(
 
   partner_economies_codes <- check_partner_economies(partner_economies)
 
-
   cache_key <- tolower(
     paste0(
       "timeseries_",
@@ -104,7 +105,7 @@ get_timeseries_data <- function(
       "_",
       paste(reporting_economies_codes, collapse="_"),
       "_",
-      paste(partner_economies, collapse="_"),
+      paste(partner_economies_codes, collapse="_"),
       time_period,
       "_",
       products_or_sectors,
@@ -273,6 +274,12 @@ get_timeseries_data <- function(
       stop("get_timeseries_data: httr::POST error: ", e)
     }
   )
+  # browser()
+
+  if(response$status_code != 200) {
+    stop("wtor: get_timeseries_data: HTTP code returned: ", response$status_code, "\n", httr::content(response)$errors$SQL[1])
+  }
+
 
   if(format_output=="csv") {
     # zipped csv output
@@ -284,7 +291,7 @@ get_timeseries_data <- function(
     # Close the connection object
     close(con)
 
-    timeseries_data_df <- readr::read_csv(archive::archive_read(tmp_file))
+    timeseries_data_df <- readr::read_csv(archive::archive_read(tmp_file, 1))
 
   } else if(format_output=="json") {
     # json output

@@ -1,8 +1,8 @@
 #' @export
 get_timeseries_data_count <- function(
     code,
-    reporting_economy="all",
-    partner_economy="default",
+    reporting_economies="all",
+    partner_economies="default",
     period="default", # ps - time period
     products_or_sectors="default", # can be all | default | the actual code
     include_sub_products_sectors=FALSE,
@@ -16,12 +16,23 @@ get_timeseries_data_count <- function(
     return(cached_timeseries_data_count)
   }
 
+  reporting_economies_codes <- check_reporting_economies(reporting_economies)
+  if(is.null(reporting_economies_codes)) {
+    stop("wtor: get_timeseries_data: reporting economies contain invalid codes or names. For a list of valid codes and names, execute wtor::get_reporting_economies()")
+  }
+
+  reporting_economies_codes <- paste(check_reporting_economies(reporting_economies), collapse=",")
+  partner_economies_codes <- paste(check_partner_economies(partner_economies), collapse=",")
+
+  browser()
+
   include_sub_products_sectors_string <- ifelse(include_sub_products_sectors,
                                                  "true",
                                                  "false")
 
 
-  get_url <- glue::glue('http://api.wto.org/timeseries/v1/data_count?i={code}&r={reporting_economy}&p={partner_economy}&ps={period}&pc={products_or_sectors}&spc={include_sub_products_sectors_string}')
+  get_url <- glue::glue('http://api.wto.org/timeseries/v1/data_count?i={code}&r={reporting_economies_codes}&p={partner_economies_codes}&ps={period}&pc={products_or_sectors}&spc={include_sub_products_sectors_string}')
+
 
   tryCatch(
     expr={
