@@ -64,8 +64,14 @@ check_economies_names_codes <- function(.countries, .economies) {
 #' @param code indicator code. Required.
 #' @param reporting_economies A vector or a scalar containing the codes and/or names of the reporting economies.
 #' @param partner_economies A vector or a scalar containing the codes and/or names of the partner economies. Not all indicators allow for this parameter.
-#' @param code indicator code.
-#' @param code indicator code.
+#' @param time_period A string containing either "default", "all", or specific periods according to the format described in https://apiportal.wto.org/api-details#api=version1&operation=post-data
+#' @param products_or_sectors A string containing either "default", "all", a specific product classification such as HS2, HS4, HS6, or a comma separated list of product codes belonging to AG,AGFOFI,MAIS,...
+#' @param subproducts_subsectors Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.
+#' @param format_ouptut Either "csv" or "json", depending on the output format in which to obtain the response to the POST request. It does not have any impact on the function returned dataframe.
+#' @param mode_output Either "codes" (by default) or "full", depending on whether the columns in the returned dataframe will contain
+#' @param decimals Either "default" or a string containing the number of decimals that the output should contain.
+#' @param offset Number of datapoints to offset in the request. Usefull if manual pagination is to be implemented.
+#' @param max_records Maximum number of rows to .
 #' @param code indicator code.
 #' @export
 get_timeseries_data <- function(
@@ -73,7 +79,7 @@ get_timeseries_data <- function(
     reporting_economies, # r a vector containing the names of reporting economies
     partner_economies=NULL, # p
     time_period="default", # ps
-    products_or_sectors=NULL, # pc
+    products_or_sectors="default", # pc
     subproducts_subsectors=FALSE, # spc
     format_output="csv", # output format: json or csv . if csv is chosen a compressed csv is returned
     mode_output="codes", # output mode
@@ -84,7 +90,8 @@ get_timeseries_data <- function(
     meta=FALSE, # include metadata,
     nocache=F,
     nopagination=F,
-    pageitems = 10000
+    pageitems = 10000,
+    request_max_attempts = 10
     ) {
 
   # check that an indicator code has been passed as argument
@@ -298,7 +305,7 @@ get_timeseries_data <- function(
 
       request_completed <- FALSE
       request_attempts <- 0
-      while(request_completed) {
+      while(!request_completed & request_attempts < request_max_attempts) {
         request_attempts <- request_attempts + 1
 
         tryCatch(
