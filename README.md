@@ -6,13 +6,13 @@ By Miguel Fabián Salazar - miguel@fabiansalazar.es - [fabiansalazar.es](https:/
 
 # Install
 
-Run the following on your R terminal: `remotes::install_github("fabiansalazares/wtor")`
+1. In .Renviron, set environment variable WTO_R_API_KEY to the value of your API key. Run `usethis::edit_r_environ()`, and then add a line such as `WTO_R_API_KEY=xxxxxxxxxxx`, where xxxxxxxxxx corresponds to your private WTO API key.
+2. Run the following: `remotes::install_github("fabiansalazares/wtor")`
 
 # To-do
 
-* Request pagination for large amounts of datapoints.
-* Reporting and partner economies by ISO code.
-* Implement unimplemented APIs. Currently only the Timeseries API is fully working.
+* Select reporting and partner economies by ISO code.
+* Implement unimplemented APIs. As of 6/8/2024, only the Timeseries API is fully working.
 
 # Timeseries API
 
@@ -47,20 +47,25 @@ Value flags | Yes
 
 `wtor::get_timeseries_available_indicators()`
 
-### Bilateral trade between two countries, by HS6 product code:
+### Bilateral trade between United States of America and Spain, by HS6 product code:
 
-`wtor::get_timeseries_data(code = "HS_M_0100", reporting_economies="United States of America", partner_economies = "Spain", products_or_sectors = "HS6")`
-
+`wtor::get_timeseries_data(code = "HS_M_0010", reporting_economies="United States of America", partner_economies = "Spain", products_or_sectors = "HS6")`
 
 # ePing
 
 ## Implemented endpoints
 
+## Examples
+
 # Quantitative Restrictions (QR)
 
 ## Implemented endpoints
 
+## Examples
+
 # Trade Facilitation Agreement Database (TFAD)
 
 ## Implemented endpoints
+
+## Examples 
 

@@ -109,6 +109,7 @@ get_timeseries_data <- function(
       paste(reporting_economies_codes, collapse="_"),
       "_",
       paste(partner_economies_codes, collapse="_"),
+      "_",
       time_period,
       "_",
       products_or_sectors,
@@ -295,23 +296,31 @@ get_timeseries_data <- function(
 
       # message(request_post_body)
 
-      tryCatch(
-        expr={
-          response <- httr::POST(
-            url=request_url,
-            body=request_post_body,
-            config = httr::add_headers(
-              "Content-Type"= "application/json",
-              "Cache-Control"="no-cache",
-              "Ocp-Apim-Subscription-Key"=get_api_key()
-            )
-          )
+      request_completed <- FALSE
+      request_attempts <- 0
+      while(request_completed) {
+        request_attempts <- request_attempts + 1
 
-        },
-        error = function(e) {
-          stop("get_timeseries_data: httr::POST error: ", e)
-        }
-      )
+        tryCatch(
+          expr={
+            response <- httr::POST(
+              url=request_url,
+              body=request_post_body,
+              config = httr::add_headers(
+                "Content-Type"= "application/json",
+                "Cache-Control"="no-cache",
+                "Ocp-Apim-Subscription-Key"=get_api_key()
+              )
+            )
+
+            request_completed <- TRUE
+          },
+          error = function(e) {
+            message("get_timeseries_data: httr::POST error: ", e)
+            message("Attempting again ", request_attempts, "/", request_max_attempts)
+          }
+        )
+      }
 
       if(response$status_code != 200) {
         stop("wtor: get_timeseries_data: HTTP code returned: ", response$status_code, "\n", httr::content(response)$errors$SQL[1])
@@ -319,7 +328,7 @@ get_timeseries_data <- function(
 
       if(format_output=="csv") {
         # zipped csv output
-        message("Unpacking zipped csv")
+        # message("Unpacking zipped csv")
         # Creating a connection object using mode "wb
         tmp_file <- tempfile()
         con = file(tmp_file, "wb")
@@ -327,14 +336,30 @@ get_timeseries_data <- function(
         # Close the connection object
         close(con)
 
-        .timeseries_data_df <- readr::read_csv(archive::archive_read(tmp_file, 1)) |>
+        .timeseries_data_df <- readr::read_csv(
+          archive::archive_read(tmp_file, 1),
+          col_types = readr::cols(
+            readr::col_character(), # indicatorcategorycode
+            readr::col_character(), # indicatorcode
+            readr::col_factor(), # reportingeconomycode
+            readr::col_factor(), # partnereconomycode
+            readr::col_factor(), # productsectorclassificationcode
+            readr::col_character(), # productsectorcode
+            readr::col_factor(), # periodcode
+            readr::col_factor(), # frequencycode
+            readr::col_factor(), # unitcode
+            readr::col_character(), # year
+            readr::col_character(), # valueflagcode
+            readr::col_double() # value
+          )
+        ) |>
           dplyr::as_tibble() |>
           dplyr::rename_all(tolower)
 
       } else if(format_output=="json") {
         # json output
 
-        message("Unpacking json")
+        # message("Unpacking json")
 
         .timeseries_data_df <- jsonlite::fromJSON(httr::content(response, as="text")) |>
           _$Dataset |>
