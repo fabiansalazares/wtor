@@ -87,10 +87,12 @@ get_timeseries_data <- function(
     pageitems = 10000
     ) {
 
+  # check that an indicator code has been passed as argument
   if(is.null(code)) {
     stop("wtor: get_timeseries: no code was passed as argument, but it is required.")
   }
 
+  # translate country names to country codes, if needed, both for reporting and partner economies
   reporting_economies_codes <- check_reporting_economies(reporting_economies)
   if(is.null(reporting_economies_codes)) {
     stop("wtor: get_timeseries_data: reporting economies contain invalid codes or names. For a list of valid codes and names, execute wtor::get_reporting_economies()")
@@ -98,6 +100,7 @@ get_timeseries_data <- function(
 
   partner_economies_codes <- check_partner_economies(partner_economies)
 
+  # generate a cache key and retrieve from cache if it does exist
   cache_key <- tolower(
     paste0(
       "timeseries_",
@@ -121,7 +124,7 @@ get_timeseries_data <- function(
 
   message("cache_key: ", cache_key)
 
-  # retrieve from cache if possible
+  # retrieve from cache if existing
   cached_timeseries <- get_cached_object(key=cache_key)
 
   if(!is.null(cached_timeseries) & !nocache) {
@@ -129,15 +132,16 @@ get_timeseries_data <- function(
     return(cached_timeseries)
   }
 
-  # retrieve from WTO api
+  # retrieve data from WTO API
   request_url <- "http://api.wto.org/timeseries/v1/data"
 
   message(request_url)
 
-  # indicator
+  # generate body of POST request - line by line of the JSON object
+  ## indicator
   indicator_line <- glue::glue('"i": "{code}"')
 
-  # reporting economies
+  ## reporting economies
   if(is.null(reporting_economies_codes)) {
     reporting_economies_line <- NULL
   } else {
@@ -149,7 +153,7 @@ get_timeseries_data <- function(
     }
   }
 
-  # partner economies
+  ## partner economies
   if(is.null(partner_economies_codes)) {
     partner_economies_line <- NULL
   } else {
@@ -161,10 +165,10 @@ get_timeseries_data <- function(
     }
   }
 
-  # time period
+  ## time period
   time_period_line <- glue::glue('"ps": "{time_period}"')
 
-  # products or sectors
+  ## products or sectors
   if(is.null(products_or_sectors)) {
     products_or_sectors_line <- NULL
   } else {
@@ -176,7 +180,7 @@ get_timeseries_data <- function(
     }
   }
 
-  # include subproducts or subsectors
+  ## include subproducts or subsectors
   subproducts_or_subsectors <- ifelse(
     subproducts_subsectors,
     "true",
@@ -184,39 +188,35 @@ get_timeseries_data <- function(
   )
   subproducts_or_subsectors_line <- glue::glue('"spc": {subproducts_or_subsectors}')
 
-  # format
+  ## format
   if(!format_output %in% c("json", "csv")) {
     stop("wtor: get_timeseries_data: format_output must be either json or csv")
   }
   format_output_line <- glue::glue('"fmt": "{format_output}"')
 
-  # mode
+  ## mode
   if(!mode_output %in% c("full", "codes")) {
     stop("wtor: get_timeseries_data: mode argument must be either 'full' or 'codes'.")
   }
   mode_output_line <- glue::glue('"mode": "{mode_output}"')
 
-  # decimals
+  ## decimals
   decimals_line <- as.character(decimals)
   decimals_line <- glue::glue('"dec": "{decimals_line}"')
-
-  # offset
-  offset <- as.character(offset)
-  offset_line <- glue::glue('"off": {offset}')
 
   max_records <- format(max_records, scientific=FALSE)
   max_records_line <- glue::glue('"max": {max_records}')
 
-  # head
+  ## head
   if(!heading_style %in% c("H", "M")) {
     stop("wtor: get_timeseries_data: heading_style must be either 'H' or 'M'")
   }
   heading_style_line <- glue::glue('"head": "{heading_style}"')
 
-  # lang
+  ## lang
   lang_line <- glue::glue('"lang": 1')
 
-  # metadata to include
+  ## metadata to include
   meta <- ifelse(
     meta,
     "true",
@@ -235,7 +235,7 @@ get_timeseries_data <- function(
     format_output_line,
     mode_output_line,
     decimals_line,
-    offset_line,
+    # offset_line,
     max_records_line,
     heading_style_line,
     lang_line,
@@ -244,71 +244,111 @@ get_timeseries_data <- function(
 
   lines_list <- lines_list[!is.null(lines_list)]
 
-  # put together the POST request
+  ## put together all the lines of POST request JSON object
   request_post_body <- paste(
     lines_list,
     collapse = ",\n"
   )
 
-  request_post_body <- glue::glue("{{\n{request_post_body}\n}}")
 
+  # perform pagination, f allowed and needed
+  # if pagination is not disabled, and the number of datapoints is greater than the maximum number of items per page,
+  # the request will be split in n=datapoints/maxitems, where datapoints is the expected number of datapoints, and
+  # maxitems is the maximum number allowed to each request. This parameter can be set as an argument
+  datapoints <- get_timeseries_data_count(
+    code,
+    reporting_economies = reporting_economies,
+    partner_economies = partner_economies,
+    time_period=time_period,
+    products_or_sectors = products_or_sectors,
+    subproducts_subsectors= subproducts_subsectors,
+    frequency_output = frequency_output
+  ) |> _$n
 
-  message(request_post_body)
+  message("Datapoints to be retrieved: ", datapoints)
 
-  # browser()
+  if(nopagination) {
+    offset_vector <- c(0)
+    message("Pagination has been disabled.")
+    if (datapoints > 1e6) {
+      stop("wtor: get_timeseries_data(): Number of datapoints to retrieve is greather than 1M.")
+    }
+  } else {
+    if(datapoints < pageitems) {
+      offset_vector <- c(0)
+    } else {
+      # we calculate the number of items per request by dividing the total datapoints
+      offset_vector <- seq(from=0, to = datapoints, by=pageitems)
+      message("Requests: ", length(offset_vector))
+      message("Items by request: ", pageitems)
+    }
+  }
 
-  tryCatch(
-    expr={
-      response <- httr::POST(
-        url=request_url,
-        body=request_post_body,
-        config = httr::add_headers(
-          "Content-Type"= "application/json",
-          "Cache-Control"="no-cache",
-          "Ocp-Apim-Subscription-Key"=get_api_key()
-        )
+  timeseries_data_df <- lapply(
+    X=offset_vector,
+    FUN=function(.offset) {
+      message("Offset: ", .offset, "\t", round(.offset/datapoints*1e2,1), "%")
+
+      offset_line <- glue::glue('"off": {as.character(.offset)}')
+
+      request_post_body <- glue::glue("{{\n{request_post_body},\n{offset_line}\n}}")
+
+      # message(request_post_body)
+
+      tryCatch(
+        expr={
+          response <- httr::POST(
+            url=request_url,
+            body=request_post_body,
+            config = httr::add_headers(
+              "Content-Type"= "application/json",
+              "Cache-Control"="no-cache",
+              "Ocp-Apim-Subscription-Key"=get_api_key()
+            )
+          )
+
+        },
+        error = function(e) {
+          stop("get_timeseries_data: httr::POST error: ", e)
+        }
       )
 
-    },
-    error = function(e) {
-      stop("get_timeseries_data: httr::POST error: ", e)
+      if(response$status_code != 200) {
+        stop("wtor: get_timeseries_data: HTTP code returned: ", response$status_code, "\n", httr::content(response)$errors$SQL[1])
+      }
+
+      if(format_output=="csv") {
+        # zipped csv output
+        message("Unpacking zipped csv")
+        # Creating a connection object using mode "wb
+        tmp_file <- tempfile()
+        con = file(tmp_file, "wb")
+        writeBin(response$content, con)
+        # Close the connection object
+        close(con)
+
+        .timeseries_data_df <- readr::read_csv(archive::archive_read(tmp_file, 1)) |>
+          dplyr::as_tibble() |>
+          dplyr::rename_all(tolower)
+
+      } else if(format_output=="json") {
+        # json output
+
+        message("Unpacking json")
+
+        .timeseries_data_df <- jsonlite::fromJSON(httr::content(response, as="text")) |>
+          _$Dataset |>
+          dplyr::as_tibble() |>
+          dplyr::rename_all(tolower)
+      } else {
+        stop("wtor: get_timeseries_data(): format_output must be either 'json' or 'csv'.")
+      }
+
+      return(.timeseries_data_df)
+
     }
-  )
-  # browser()
-
-  if(response$status_code != 200) {
-    stop("wtor: get_timeseries_data: HTTP code returned: ", response$status_code, "\n", httr::content(response)$errors$SQL[1])
-  }
-
-
-  if(format_output=="csv") {
-    # zipped csv output
-    message("Unpacking zipped csv")
-    # Creating a connection object using mode "wb
-    tmp_file <- tempfile()
-    con = file(tmp_file, "wb")
-    writeBin(response$content, con)
-    # Close the connection object
-    close(con)
-
-    timeseries_data_df <- readr::read_csv(archive::archive_read(tmp_file, 1))
-
-  } else if(format_output=="json") {
-    # json output
-
-    message("Unpacking json")
-
-    timeseries_data_df <- jsonlite::fromJSON(httr::content(response, as="text")) |>
-      _$Dataset |>
-      dplyr::as_tibble() |>
-      dplyr::rename_all(tolower)
-  } else {
-    stop("wtor: get_timeseries_data(): format_output must be either 'json' or 'csv'.")
-  }
-
-  timeseries_data_df <- timeseries_data_df |>
-    dplyr::as_tibble() |>
-    dplyr::rename_all(tolower)
+  ) |>
+    dplyr::bind_rows()
 
   set_cached_object(key=cache_key,
                     value= timeseries_data_df)
