@@ -70,9 +70,15 @@ check_economies_names_codes <- function(.countries, .economies) {
 #' @param format_ouptut Either "csv" or "json", depending on the output format in which to obtain the response to the POST request. It does not have any impact on the function returned dataframe.
 #' @param mode_output Either "codes" (by default) or "full", depending on whether the columns in the returned dataframe will contain
 #' @param decimals Either "default" or a string containing the number of decimals that the output should contain.
+#' @param heading_style Either "H" for human-readable headers and "M" for machine-readable codes.
 #' @param offset Number of datapoints to offset in the request. Usefull if manual pagination is to be implemented.
-#' @param max_records Maximum number of rows to .
-#' @param code indicator code.
+#' @param max_records Maximum number of rows to return.
+#' @param heading_style Either "H" for human-readable headers and "M" for machine-readable codes.
+#' @param meta TRUE to include metadata.
+#' @param nocache TRUE to disable caching of results.
+#' @param nopagination TRUE to disable pagination of requests.
+#' @param pageitems Number of rows per paginated request. By default 10.000
+#' @param request_max_attempts Maximum number of request attempts.
 #' @export
 get_timeseries_data <- function(
     code, # i,
@@ -84,9 +90,9 @@ get_timeseries_data <- function(
     format_output="csv", # output format: json or csv . if csv is chosen a compressed csv is returned
     mode_output="codes", # output mode
     decimals="default", # dec number of decimals
+    heading_style="M", # head heading style
     offset=0, # off - records to offset
     max_records=10000, # max maximum number of records returned heading_style="M",
-    heading_style="M", # head heading style
     meta=FALSE, # include metadata,
     nocache=F,
     nopagination=F,
