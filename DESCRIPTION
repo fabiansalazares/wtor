@@ -1,7 +1,7 @@
 Package: wtor
 Type: Package
 Title: A Client for the WTO API Written in R
-Version: 0.2.1
+Version: 0.3.0
 Author: Miguel Fabián Salazar 
 Maintainer: Miguel Fabián Salazar <miguel@fabiansalazar.es>
 Description: A client for the excellent World Trade Organization REST API.

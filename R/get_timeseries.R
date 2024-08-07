@@ -275,8 +275,7 @@ get_timeseries_data <- function(
     partner_economies = partner_economies,
     time_period=time_period,
     products_or_sectors = products_or_sectors,
-    subproducts_subsectors= subproducts_subsectors,
-    frequency_output = frequency_output
+    subproducts_subsectors= subproducts_subsectors
   ) |> _$n
 
   message("Datapoints to be retrieved: ", datapoints)

@@ -1,3 +1,6 @@
+#' Retrieve available periods for the WTO Timeseries API
+#' @param language 1 for English, 2 for French or 3 for Spanish
+#' @examples get_periods()
 #' @export
 get_periods <- function(
     language="1",

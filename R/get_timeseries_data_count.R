@@ -1,12 +1,19 @@
+#' Obtain the number of data points to be retrieved for any given query to the Timeseries API.
+#' @param code indicator code. Required.
+#' @param reporting_economies A vector or a scalar containing the codes and/or names of the reporting economies.
+#' @param partner_economies A vector or a scalar containing the codes and/or names of the partner economies. Not all indicators allow for this parameter.
+#' @param time_period A string containing either "default", "all", or specific periods according to the format described in https://apiportal.wto.org/api-details#api=version1&operation=post-data
+#' @param products_or_sectors A string containing either "default", "all", a specific product classification such as HS2, HS4, HS6, or a comma separated list of product codes belonging to AG,AGFOFI,MAIS,...
+#' @param subproducts_subsectors Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.
+#' @param nocache TRUE to disable caching of results.
 #' @export
 get_timeseries_data_count <- function(
     code,
     reporting_economies="all",
-    partner_economies="default",
+    partner_economies=NULL,
     time_period="default", # ps - time period
     products_or_sectors="default", # can be all | default | the actual code
     subproducts_subsectors=FALSE,
-    frequency_output="all",
     nocache=F) {
 
   if(is.null(code)) {
@@ -51,7 +58,11 @@ get_timeseries_data_count <- function(
                                                  "true",
                                                  "false")
 
-  get_url <- glue::glue('http://api.wto.org/timeseries/v1/data_count?i={code}&r={reporting_economies_codes}&p={partner_economies_codes}&ps={time_period}&pc={products_or_sectors}&spc={subproducts_subsectors}')
+  get_url <- glue::glue('http://api.wto.org/timeseries/v1/data_count?i={code}&r={reporting_economies_codes}&ps={time_period}&pc={products_or_sectors}&spc={subproducts_subsectors}')
+
+  if(!is.null(partner_economies)) {
+    get_url <- sprintf(paste0(get_url,"&p=%s"), partner_economies_codes)
+  }
 
   message("get_url: ", get_url)
 

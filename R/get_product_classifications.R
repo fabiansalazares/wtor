@@ -1,7 +1,9 @@
+#' Retrieve a list of product classifications that are allowed as arguments to other functions.
+#' @param language 1 for English, 2 for French or 3 for Spanish
+#' @examples get_periods()
 #' @export
 get_product_classifications <- function(
     language="1",
-    pc="all",
     nocache=F) {
 
   cached_product_classifications <-get_cached_object("timeseries_product_classifications")

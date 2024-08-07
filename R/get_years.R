@@ -1,3 +1,6 @@
+#' Retrieve available years for the WTO Timeseries API
+#' @param language 1 for English, 2 for French or 3 for Spanish
+#' @examples get_years()
 #' @export
 get_years <- function(
     language="1",

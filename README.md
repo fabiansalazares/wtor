@@ -59,6 +59,15 @@ Value flags | Yes
 
 # Quantitative Restrictions (QR)
 
+Endpoint|Implemented
+---|-----
+HS Versions | Yes
+Member | Yes 
+Notification | Yes
+Product | Yes 
+QR details | Yes 
+QR list | Yes 
+
 ## Implemented endpoints
 
 ## Examples
