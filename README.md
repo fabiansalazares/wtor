@@ -83,6 +83,12 @@ dplyr::bind_rows()
 
 ## Implemented endpoints
 
+Endpoint|Implemented
+---|-----
+Members | No
+Search notifications | No
+
+
 ## Examples
 
 # Quantitative Restrictions (QR)
@@ -104,6 +110,10 @@ QR list | Yes
 # Trade Facilitation Agreement Database (TFAD)
 
 ## Implemented endpoints
+
+Endpoint|Implemented
+---|-----
+procedures_contacts_single_window | No
 
 ## Examples 
 
