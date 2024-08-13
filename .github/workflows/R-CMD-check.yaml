@@ -28,7 +28,9 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      WTO_R_API_KEY: ${{ secrets.WTO_R_API_KEY }}
       R_KEEP_PKG_SOURCE: yes
+
 
     steps:
       - uses: actions/checkout@v4
