@@ -34,7 +34,7 @@ wtor_env$cache <- create_cache()
 
   if(get_api_key() == "") {
 
-    stop("No API key found in environment variable WTO_R_API_KEY.\n
+    message("No API key found in environment variable WTO_R_API_KEY.\n
          If you don't hold a valid WTO API key, obtain a new one at https://apiportal.wto.org/.\n
          Once you've got it, run usethis::edit_r_environ() and set the value of WTO_R_API_KEY to your WTO API key.\n")
   }

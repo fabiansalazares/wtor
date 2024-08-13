@@ -3,3 +3,7 @@
 * Fix cache keys for get_geographical_regions(), get_groups(), get_partner_economies() and get_reporting_economies(). Now, the cache key does actually depend on the request being performed.
 
 * Add code example showing how to retrieve countries from each group.
+
+# 0.3.2
+
+* Call to stop() replaced by message() when API key not found on package load.
