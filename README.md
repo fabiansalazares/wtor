@@ -1,3 +1,8 @@
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/fabiansalazares/wtor/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/fabiansalazares/wtor/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
+
 # wtor - A R-language client for the World Trade Organization (WTO) API
 
 wtor is a R-language client for the World Trade Organization data APIs. You can find more information about the API, as well as get your API key here: https://apiportal.wto.org/ 
