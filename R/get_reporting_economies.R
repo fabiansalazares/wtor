@@ -6,7 +6,9 @@ get_reporting_economies <- function(
     language="1",
     nocache=F) {
 
-  cached_reporting_economies <-get_cached_object("timeseries_reporting_economies")
+  cache_key <- paste0("timeseries_reporting_economies_", ig, "_", reg, "_", gp, "_", language)
+
+  cached_reporting_economies <-get_cached_object(cache_key)
 
   if(!is.null(cached_reporting_economies) & !nocache) {
     message("get_reporting_economies: returning from cache.")
@@ -47,7 +49,7 @@ get_reporting_economies <- function(
   ) |>
     dplyr::bind_rows()
 
-  set_cached_object(key="timeseries_reporting_economies",
+  set_cached_object(key=cache_key,
                     value= reporting_economies_df)
 
   return(

@@ -3,7 +3,9 @@ get_geographical_regions <- function(
     language="1",
     nocache=F) {
 
-  cached_geographical_regions <-get_cached_object("timeseries_geographical_regions")
+  cache_key <- paste0("timeseries_geographical_regions_", language)
+
+  cached_geographical_regions <-get_cached_object(cache_key)
 
   if(!is.null(cached_geographical_regions) & !nocache) {
     message("get_geographical_regions: returning from cache.")
@@ -47,7 +49,7 @@ get_geographical_regions <- function(
   ) |>
     dplyr::bind_rows()
 
-  set_cached_object(key="timeseries_geographical_regions",
+  set_cached_object(key=cache_key,
                     value= geographical_regions_df)
 
   return(

@@ -51,6 +51,29 @@ Value flags | Yes
 
 `wtor::get_timeseries_data(code = "HS_M_0010", reporting_economies="United States of America", partner_economies = "Spain", products_or_sectors = "HS6")`
 
+### Countries belonging to each group of countries
+
+```
+
+groups_of_countries <- wtor::get_groups()
+
+lapply(
+X=groups_of_countries |> _$code, # retrieve groups of countries from the API and extract the "code" column that will be iterated on
+FUN=function(.group_code) {
+  message("Querying group: ", .group_code)
+  Sys.sleep(1) # do not request more than one query per second
+  wtor::get_reporting_economies(gp=.group_code) |> 
+    dplyr::mutate(
+      group_code = .group_code,
+      group_name = groups_of_countries |> dplyr::filter(code == .group_code) |> _$name
+    )
+
+}
+) |> 
+dplyr::bind_rows()
+
+```
+
 # ePing
 
 ## Implemented endpoints
@@ -58,6 +81,8 @@ Value flags | Yes
 ## Examples
 
 # Quantitative Restrictions (QR)
+
+## Implemented endpoints
 
 Endpoint|Implemented
 ---|-----
@@ -68,7 +93,6 @@ Product | Yes
 QR details | Yes 
 QR list | Yes 
 
-## Implemented endpoints
 
 ## Examples
 

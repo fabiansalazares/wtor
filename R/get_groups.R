@@ -3,7 +3,9 @@ get_groups <- function(
     language="1",
     nocache=F) {
 
-  cached_groups <-get_cached_object("timeseries_groups")
+  cache_key <- paste0("timeseries_groups_", language)
+
+  cached_groups <-get_cached_object(cache_key)
 
   if(!is.null(cached_groups) & !nocache) {
     message("get_groups: returning from cache.")
@@ -47,7 +49,7 @@ get_groups <- function(
   ) |>
     dplyr::bind_rows()
 
-  set_cached_object(key="timeseries_groups",
+  set_cached_object(key=cache_key,
                     value= groups_df)
 
   return(
