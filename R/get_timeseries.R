@@ -1,13 +1,21 @@
+#' Auxiliary function to check that a vector of country names contains valid country codes in the list of reporting economies.
 check_reporting_economies <- function(.countries) {
   check_economies_names_codes(.countries = .countries, .economies = get_reporting_economies())
 }
 
+#' Auxiliary function to check that a vector of country names contains valid country codes in the list of partner economies.
 check_partner_economies <- function(.countries) {
   check_economies_names_codes(.countries = .countries, .economies = get_partner_economies())
 }
 
+#' Auxiliary function to check that a vector of country names contains valid country codes
 check_economies_names_codes <- function(.countries, .economies) {
   reporting_economies_df <- .economies
+
+
+  if(!"name" %in% names(reporting_economies_df)) {
+    stop("wtor: check_economies_names_codes: .economies does not have a 'name' column")
+  }
 
   codes_to_return <- c()
   invalid_countries <- NULL
@@ -50,14 +58,12 @@ check_economies_names_codes <- function(.countries, .economies) {
     reporting_economies_df |> dplyr::filter(name %in% .countries_not_codes) |> _$code
     ) |> unique()
 
-
   # if there were any invalid codes, NULL is returned
   if(!is.null(invalid_countries) & !length(invalid_countries) == 0) {
     return(NULL)
   }
 
   return(codes_to_return)
-
 }
 
 #' Retrieve timeseries data.
