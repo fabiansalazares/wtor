@@ -1,8 +1,14 @@
 create_cache <- function(type="disk") {
+  cache_disk_dir <- paste0(tools::R_user_dir("wtor", which="data"), "/cache")
+
   if(type=="disk") {
+    if(!fs::dir_exists(cache_disk_dir)) {
+      fs::dir_create(cache_disk_dir)
+    }
+
     return(
       cachem::cache_disk(
-        dir = tools::R_user_dir("wtor", which="data"),
+        dir = cache_disk_dir,
         max_age = 60*60*24*30, # in seconds, 30 days
         destroy_on_finalize = FALSE, # so that cached objects stayed between sessions
         warn_ref_objects = TRUE
@@ -33,11 +39,10 @@ wtor_env$cache <- create_cache()
 
   if(get_api_key() == "") {
 
-    packageStartupMessage("No API key found in environment variable WTO_R_API_KEY.\n
+    cat("No API key found in environment variable WTO_R_API_KEY.\n
          If you don't hold a valid WTO API key, obtain a new one at https://apiportal.wto.org/.\n
          Once you've got it, run usethis::edit_r_environ() and set the value of WTO_R_API_KEY to your WTO API key.\n")
   }
-
 }
 
 #' Retrieve the WTO API key from environment variable WTO_R_API_KEY
