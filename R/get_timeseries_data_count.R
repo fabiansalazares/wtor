@@ -1,9 +1,9 @@
-#' Obtain the number of data points to be retrieved for any given query to the Timeseries API.
-#' @param code indicator code. Required.
-#' @param reporting_economies A vector or a scalar containing the codes and/or names of the reporting economies.
-#' @param partner_economies A vector or a scalar containing the codes and/or names of the partner economies. Not all indicators allow for this parameter.
-#' @param time_period A string containing either "default", "all", or specific periods according to the format described in https://apiportal.wto.org/api-details#api=version1&operation=post-data
-#' @param products_or_sectors A string containing either "default", "all", a specific product classification such as HS2, HS4, HS6, or a comma separated list of product codes belonging to AG,AGFOFI,MAIS,...
+#' Retrieve the amount of data points to be retrieved, for any given query to the `get_timeseries_data()`.
+#' @param code Character string. indicator code. Required.
+#' @param reporting_economies Character string. A vector or a scalar character string value containing the codes and/or names of the reporting economies.
+#' @param partner_economies Character string. A vector or a scalar containing the codes and/or names of the partner economies. Not all indicators allow for this parameter.
+#' @param time_period Character string. A string containing either "default", "all", or specific periods according to the format described in https://apiportal.wto.org/api-details#api=version1&operation=post-data
+#' @param products_or_sectors Character string. A string containing either "default", "all", a specific product classification such as HS2, HS4, HS6, or a comma separated list of product codes belonging to AG,AGFOFI,MAIS,...
 #' @param subproducts_subsectors Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.
 #' @param nocache TRUE to disable caching of results.
 #' @export

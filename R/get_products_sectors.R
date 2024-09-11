@@ -1,7 +1,13 @@
+#' Retrieve a list of valid codes for products (goods) and sectors (services).
+#' @param pc Character string. Product classification to filter for. See `get_product_classification()`. Default is 'all'.
+#' @param lang Numeric. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @returns A tibble containing the available periods.
+#' @examples get_periods()
 #' @export
 get_products_sectors <- function(
-    language="1",
     pc="all",
+    lang="1",
     nocache=F) {
 
   cached_products_sectors <-get_cached_object("timeseries_products_sectors")
@@ -18,7 +24,7 @@ get_products_sectors <- function(
   }
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/products?pc={pc}&lang={language}"
+    "https://api.wto.org/timeseries/v1/products?pc={pc}&lang={lang}"
     )
 
   tryCatch(

@@ -5,8 +5,8 @@
 #' @param year_of_entry_into_force Year in which the quantitative restrictions went into force
 #' @param product_codes A vector or a scalar containing the product code(s) that partially or fully match the codes in any HS version
 #' @param product_ids A vector or a scalar containing the product of product ids in format such as hx-yyyyyy, where x is the HS version and yyyyyy the product id.
-#' @param nocache TRUE to disable retrieval of cached results
-#' @examples get_list()
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @examples get_qr_list()
 #' @return A tibble containing the list of matching quantitative restrictions.
 get_qr_list <- function(
     page=NULL,

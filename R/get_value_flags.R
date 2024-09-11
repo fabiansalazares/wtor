@@ -1,6 +1,10 @@
+#' Retrive a list of valid codes for value flags. Value flags are predefined metadata for values, such as estimation, ad valorem, forecasted values...
+#' @param lang Numeric. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param pc Character string. Product classifications: must be one of the following: 'all', 'none', or a list of comma separated codes.
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
 #' @export
 get_value_flags <- function(
-    language="1",
+    lang="1",
     pc="all",
     nocache=F) {
 
@@ -13,7 +17,7 @@ get_value_flags <- function(
 
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/value_flags?lang={language}"
+    "https://api.wto.org/timeseries/v1/value_flags?lang={lang}"
     )
 
   tryCatch(

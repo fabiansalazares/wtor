@@ -1,6 +1,9 @@
+#' Retrieve a list of valid for the units in which the data may be retrieved.
+#' @param lang Numeric. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
 #' @export
 get_units <- function(
-    language="1",
+    lang="1",
     nocache=F) {
 
   cached_units <-get_cached_object("timeseries_units")
@@ -12,7 +15,7 @@ get_units <- function(
 
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/units?lang={language}"
+    "https://api.wto.org/timeseries/v1/units?lang={lang}"
     )
 
   tryCatch(

@@ -1,4 +1,15 @@
-
+#' Retrieve the list of available indicators for the WTO Timeseries API
+#' @param name Character string. Indicator name or part of it.
+#' @param i Character string. Either 'all' or a string to filter indicators' description for.
+#' @param t Character string. Topics to filter for, separated by commas.
+#' @param pc Character string. Product classifications: must be one of the following: 'all', 'none', or a list of comma separated codes.
+#' @param tp Character string. Filter for indicators with a trade partner paramenter. Either 'all', 'yes' or no.
+#' @param frq Character string. Filter for the frequency available. Either 'all' or 'A', 'S', 'Q', 'M' (anually, semi-anually, quarterly or monthly).
+#' @param lang Integer. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @return A tibble containing the available indicators with the specified filters.
+#' @examples get_timeseries_available_indicators()
+#' @export
 get_timeseries_available_indicators <- function(
     i="all", # indicators - either all or filter for a given indicator
     name="", # indicator name or part of it

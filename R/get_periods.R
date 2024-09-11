@@ -1,9 +1,11 @@
 #' Retrieve available periods for the WTO Timeseries API
-#' @param language 1 for English, 2 for French or 3 for Spanish
+#' @param lang Numeric. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @returns A tibble containing the available periods.
 #' @examples get_periods()
 #' @export
 get_periods <- function(
-    language="1",
+    lang="1",
     nocache=F) {
 
   cached_periods <-get_cached_object("timeseries_periods")
@@ -15,7 +17,7 @@ get_periods <- function(
 
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/periods?lang={language}"
+    "https://api.wto.org/timeseries/v1/periods?lang={lang}"
     )
 
   tryCatch(

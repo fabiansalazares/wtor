@@ -1,6 +1,6 @@
 #' Retrieve quantitative restrictions by id
 #' @param qr_id Id of the QR
-#' @param nocache TRUE to disable retrieval of cached results
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
 #' @examples get_qr_id(qr_id="")
 #' @return A tibble containing the details of the quantitative restriction whose id matches the argument.
 get_qr_id <- function(

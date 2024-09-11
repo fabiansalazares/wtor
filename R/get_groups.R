@@ -1,9 +1,14 @@
+#' Retrieve the list of available groups of economies to be passed as reporting or partner economies parameters.
+#' @param lang Numeric. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @examples get_groups()
+#' @return A tibble containing the list of available groups of economies and their corresponding codes.
 #' @export
 get_groups <- function(
-    language="1",
+    lang="1",
     nocache=F) {
 
-  cache_key <- paste0("timeseries_groups_", language)
+  cache_key <- paste0("timeseries_groups_", lang)
 
   cached_groups <-get_cached_object(cache_key)
 
@@ -14,7 +19,7 @@ get_groups <- function(
 
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/territory/groups?lang={language}"
+    "https://api.wto.org/timeseries/v1/territory/groups?lang={lang}"
     )
 
   tryCatch(

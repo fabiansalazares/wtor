@@ -1,10 +1,10 @@
 #' Retrieve product lists from the Quantitative Restrictions database
-#' @param hs_version One of the following strings: "h1", "h2", "h3", "h4", "h5", "h6"
-#' @param code The product code to fully or partially match
-#' @param page Page number
-#' @param description String to be searched for in the product description
-#' @param nocache TRUE to disable retrieval of cached results
-#' @example get_qr_products(hs_version="h1", code="65")
+#' @param hs_version Character string. One of the following strings: "h1", "h2", "h3", "h4", "h5", "h6"
+#' @param code Character string. The product code to fully or partially match
+#' @param page Integer. Page number
+#' @param description Character string. String to be searched for in the product description
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @examples get_qr_products(hs_version="h1", code="65")
 get_qr_products <- function(
     hs_version,
     code=NULL,

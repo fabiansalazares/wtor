@@ -1,9 +1,11 @@
-#' Retrieve a list of product classifications that are allowed as arguments to other functions.
-#' @param language 1 for English, 2 for French or 3 for Spanish
-#' @examples get_periods()
+#' Retrieve a list of valid product classifications codes and their descriptions.
+#' @param lang Integer. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @return A tibble containing the list of valid product classifications.
+#' @examples get_product_classifications()
 #' @export
 get_product_classifications <- function(
-    language="1",
+    lang="1",
     nocache=F) {
 
   cached_product_classifications <-get_cached_object("timeseries_product_classifications")
@@ -14,9 +16,9 @@ get_product_classifications <- function(
   }
 
 
-  get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/product_classifications?lang={language}"
-    )
+  # get_url <- glue::glue("https://api.wto.org/timeseries/v1/product_classifications?lang={lang}")
+
+  get_url <- sprintf("https://api.wto.org/timeseries/v1/product_classifications?lang=%s", lang)
 
   tryCatch(
     expr={

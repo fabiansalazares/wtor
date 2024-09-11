@@ -1,3 +1,5 @@
+#' Create a local `cachem` object to store the local cache, either in disk or memory.
+#' @param type Character string. Choose between types of cache to be created. Either 'disk' or 'memory'. Default is 'disk'
 create_cache <- function(type="disk") {
   cache_disk_dir <- paste0(tools::R_user_dir("wtor", which="data"), "/cache")
 
@@ -27,11 +29,13 @@ create_cache <- function(type="disk") {
   }
 }
 
+#' Clean the local cache.
 clean_cache <- function() {
   wtor_env$cache$destroy()
   wtor_env$cache <- create_cache()
 }
 
+#' Create an environment object in which to store the local cache object.
 wtor_env <- new.env(parent = emptyenv())
 wtor_env$cache <- create_cache()
 
@@ -51,12 +55,17 @@ get_api_key <- function() {
   Sys.getenv("WTO_R_API_KEY")
 }
 
+#' Retrieve an object from local cache.
+#' @param key Character string. Cached object key.
 get_cached_object <- function(key) {
   return(
     wtor_env$cache$get(key, missing = NULL)
   )
 }
 
+#' Store an object in local cache.
+#' @param key Character string. Cached object key.
+#' @param value Tibble. Cached object.
 set_cached_object <- function(key, value) {
   wtor_env$cache$set(key, value)
 }

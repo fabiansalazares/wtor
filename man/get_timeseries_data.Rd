@@ -37,6 +37,8 @@ get_timeseries_data(
 
 \item{subproducts_subsectors}{Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.}
 
+\item{format_output}{Either "csv" or "json", depending on the output format in which to obtain the response to the POST request. It does not have any impact on the function returned dataframe.}
+
 \item{mode_output}{Either "codes" (by default) or "full", depending on whether the columns in the returned dataframe will contain}
 
 \item{decimals}{Either "default" or a string containing the number of decimals that the output should contain.}
@@ -56,8 +58,9 @@ get_timeseries_data(
 \item{pageitems}{Number of rows per paginated request. By default 10.000}
 
 \item{request_max_attempts}{Maximum number of request attempts.}
-
-\item{format_ouptut}{Either "csv" or "json", depending on the output format in which to obtain the response to the POST request. It does not have any impact on the function returned dataframe.}
+}
+\value{
+A tibble containing the request data.
 }
 \description{
 Retrieve timeseries data.
