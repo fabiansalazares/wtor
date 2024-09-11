@@ -1,7 +1,10 @@
+#' Retrieve the available data frequencies.
+#' @param lang Integer. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @examples get_frequencies()
 #' @export
 get_frequencies <- function(
-    language="1",
-    pc="all",
+    lang="1",
     nocache=F) {
 
   cached_frequencies <-get_cached_object("timeseries_frequencies")
@@ -13,7 +16,7 @@ get_frequencies <- function(
 
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/frequencies?lang={language}"
+    "https://api.wto.org/timeseries/v1/frequencies?lang={lang}"
     )
 
   tryCatch(

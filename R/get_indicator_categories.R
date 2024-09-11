@@ -1,6 +1,11 @@
+#' Retrieve a list of categories of available Timeseries API indicators.
+#' @param lang Numeric. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @examples get_indicator_categories()
+#' @return A tibble containing the codes of indicator categories and their description.
 #' @export
 get_indicator_categories <- function(
-    language="1",
+    lang="1",
     nocache=F) {
 
   cached_indicator_categories <-get_cached_object("timeseries_indicator_categories")
@@ -12,7 +17,7 @@ get_indicator_categories <- function(
 
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/indicator_categories?lang={language}"
+    "https://api.wto.org/timeseries/v1/indicator_categories?lang={lang}"
     )
 
   tryCatch(

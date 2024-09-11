@@ -1,6 +1,9 @@
+#' Retrieve a list of topics grouping indicators.
+#' @param lang Numeric. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
 #' @export
 get_topics <- function(
-    language="1",
+    lang="1",
     nocache=F) {
 
   cached_topics <-get_cached_object("timeseries_topics")
@@ -12,7 +15,7 @@ get_topics <- function(
 
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/topics?lang={language}"
+    "https://api.wto.org/timeseries/v1/topics?lang={lang}"
     )
 
   tryCatch(

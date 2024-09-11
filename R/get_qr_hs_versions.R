@@ -1,6 +1,7 @@
 #' Retrieve the list of available HS versions for the Quantitative Restrictions database.
-#' @param nocache TRUE to disable retrieval of cached results
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
 #' @examples get_qr_hs_versions()
+#' @return A tibble containing the list of valid codes for available HS version.
 #' @export
 get_qr_hs_versions <- function(nocache=F) {
   cached_qr_hs_versions <-get_cached_object("qr_hs_versions")

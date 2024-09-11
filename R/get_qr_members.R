@@ -2,7 +2,8 @@
 #' @param member_code Code of the member country.
 #' @param name Name of the member country.
 #' @param page Page to be retrieved
-#' @examples get_qr_member(name="Afghanistan")
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @examples get_qr_members(name="Afghanistan")
 #' @return A tibble containing the name and code information for the requested country.
 get_qr_members <- function(
     member_code=NULL,

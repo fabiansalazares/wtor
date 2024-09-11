@@ -1,9 +1,10 @@
-#' Retrieve available years for the WTO Timeseries API
-#' @param language 1 for English, 2 for French or 3 for Spanish
+#' Retrieve a list of available years for the WTO Timeseries API
+#' @param lang 1 for English, 2 for French or 3 for Spanish
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
 #' @examples get_years()
 #' @export
 get_years <- function(
-    language="1",
+    lang="1",
     nocache=F) {
 
   cached_years <-get_cached_object("timeseries_years")
@@ -15,7 +16,7 @@ get_years <- function(
 
 
   get_url <- glue::glue(
-    "https://api.wto.org/timeseries/v1/years?lang={language}"
+    "https://api.wto.org/timeseries/v1/years?lang={lang}"
     )
 
   tryCatch(

@@ -1,15 +1,24 @@
-#' Auxiliary function to check that a vector of country names contains valid country codes in the list of reporting economies.
+#' Auxiliary function to check that a vector of country names contains valid country codes in the list of reporting economies. Wraps `check_economies_names_codes()`.
+#' @param .countries Vector of character strings containing the countries codes' to be checked.
 check_reporting_economies <- function(.countries) {
   check_economies_names_codes(.countries = .countries, .economies = get_reporting_economies())
 }
 
-#' Auxiliary function to check that a vector of country names contains valid country codes in the list of partner economies.
+#' Auxiliary function to check that a vector of country names contains valid country codes in the list of partner economies. Wraps `check_economies_names_codes()`
+#' @param .countries Vector of character strings containing the countries codes' to be checked.
 check_partner_economies <- function(.countries) {
-  check_economies_names_codes(.countries = .countries, .economies = get_partner_economies())
+  check_economies_names_codes(
+    .countries = .countries,
+    .economies = get_partner_economies()
+  )
 }
 
 #' Auxiliary function to check that a vector of country names contains valid country codes
-check_economies_names_codes <- function(.countries, .economies) {
+#' @param .countries Vector of character strings containing the countries codes' to be checked.
+#' @param .economies Vector of character strings containing the economies codes' to be checked.
+check_economies_names_codes <- function(
+    .countries,
+    .economies) {
   reporting_economies_df <- .economies
 
 
@@ -28,7 +37,12 @@ check_economies_names_codes <- function(.countries, .economies) {
 
   # if all the reporting economies are names of countries
   if(all(.countries %in% reporting_economies_df$name)) {
-    return(reporting_economies_df |> dplyr::filter(name %in% .countries) |> _$code)
+    return(
+      reporting_economies_df |>
+        dplyr::filter(any(str_detect(.countries, fixed(name)))) |>
+        # dplyr::filter(name %in% .countries) |>
+        _$code
+    )
   }
 
   # all the countries that are not names, must be codes. Otherwise, print message and  return NULL
@@ -73,7 +87,7 @@ check_economies_names_codes <- function(.countries, .economies) {
 #' @param time_period A string containing either "default", "all", or specific periods according to the format described in https://apiportal.wto.org/api-details#api=version1&operation=post-data
 #' @param products_or_sectors A string containing either "default", "all", a specific product classification such as HS2, HS4, HS6, or a comma separated list of product codes belonging to AG,AGFOFI,MAIS,...
 #' @param subproducts_subsectors Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.
-#' @param format_ouptut Either "csv" or "json", depending on the output format in which to obtain the response to the POST request. It does not have any impact on the function returned dataframe.
+#' @param format_output Either "csv" or "json", depending on the output format in which to obtain the response to the POST request. It does not have any impact on the function returned dataframe.
 #' @param mode_output Either "codes" (by default) or "full", depending on whether the columns in the returned dataframe will contain
 #' @param decimals Either "default" or a string containing the number of decimals that the output should contain.
 #' @param heading_style Either "H" for human-readable headers and "M" for machine-readable codes.
@@ -85,6 +99,7 @@ check_economies_names_codes <- function(.countries, .economies) {
 #' @param nopagination TRUE to disable pagination of requests.
 #' @param pageitems Number of rows per paginated request. By default 10.000
 #' @param request_max_attempts Maximum number of request attempts.
+#' @return A tibble containing the request data.
 #' @export
 get_timeseries_data <- function(
     code, # i,

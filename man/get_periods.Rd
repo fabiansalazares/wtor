@@ -4,10 +4,15 @@
 \alias{get_periods}
 \title{Retrieve available periods for the WTO Timeseries API}
 \usage{
-get_periods(language = "1", nocache = F)
+get_periods(lang = "1", nocache = F)
 }
 \arguments{
-\item{language}{1 for English, 2 for French or 3 for Spanish}
+\item{lang}{Numeric. Set to 1 for English, 2 for French or 3 for Spanish}
+
+\item{nocache}{Logical. If TRUE, disables retrieval of results from local cache.}
+}
+\value{
+A tibble containing the available periods.
 }
 \description{
 Retrieve available periods for the WTO Timeseries API

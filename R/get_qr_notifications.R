@@ -2,7 +2,8 @@
 #' @param page Page to be retrieved
 #' @param reporter_member_code Member code
 #' @param notification_year Year of the notification
-#' @examples get_qr_notification(reporter_member_code="C554", notification_year="2022")
+#' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
+#' @examples get_qr_notifications(reporter_member_code="C554", notification_year="2022")
 get_qr_notifications <- function(
     page=NULL,
     reporter_member_code=NULL,
@@ -13,7 +14,7 @@ get_qr_notifications <- function(
 
   if(!is.null(cached_qr_notifications) & !nocache) {
     message("wtor: get_qr_notifications(): returning from cache.")
-   return(cached_qr_notifications)
+    return(cached_qr_notifications)
   }
 
   get_url <- "https://api.wto.org/qrs/notifications?"
