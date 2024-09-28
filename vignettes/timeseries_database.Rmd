@@ -1,0 +1,54 @@
+---
+title: "timeseries_database"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{timeseries_database}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tidyverse)
+library(wtor)
+```
+
+# Overview
+
+wtor Timeseries API-related functions allow you to explore and retrieve all the time series in the excellent WTO database. 
+
+The functions can be divided in two main groups:
+
+* **Functions that allow you to retrieve the final data or that are related to this goal**. The main example being `get_timeseries_data()`
+* **Accesory functions that retrieve metadata**. A very important one being `get_timeseries_available_indicators()`
+
+## Caching
+
+By default, requests to the Timeseries API are cached to disk.
+
+# Getting started
+
+First of all, set up your WTO API key if you haven't already. Sign up at [WTO API portal](https://apiportal.wto.org/) and retrieve your API key at your profile. Then, set environment variable WTO_R_API_KEY to the value of your key. Example: `usethis::edit_r_environ()` and then: `WTO_R_API_KEY=6bf2c780decc45c08e668f1d7d488534`. Lastly, restart your R session.
+
+To test if the package has been correctly set up and working, retrieve a list of all the available indicators: `wtor::get_available_indicators()`.
+
+# Bi-lateral trade flows
+
+The WTO Timeseries API includes a rich set of bilateral trade flows between members, under the category of "International Trade Statistics". To retrieve a list of all the available indicators in this category, execute `wtor::get_timeseries_available_indicators() |>  dplyr::filter(categoryCode == "ITS")`.
+
+# Comparison of MFN tariff rates
+
+## Average rates
+
+## A map of MFN tariff rates by countries
+
+# Bi-lateral tariff rates
+
+
+
