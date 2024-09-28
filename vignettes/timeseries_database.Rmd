@@ -38,9 +38,23 @@ First of all, set up your WTO API key if you haven't already. Sign up at [WTO AP
 
 To test if the package has been correctly set up and working, retrieve a list of all the available indicators: `wtor::get_available_indicators()`.
 
-# Bi-lateral trade flows
+# Trade-flows
 
 The WTO Timeseries API includes a rich set of bilateral trade flows between members, under the category of "International Trade Statistics". To retrieve a list of all the available indicators in this category, execute `wtor::get_timeseries_available_indicators() |>  dplyr::filter(categoryCode == "ITS")`.
+
+## Total trade flows
+
+Let us retrieve and plot the total value of merchandise exports reported by Albania, to the world economy, grouping by sector of exports:
+
+```{r}
+
+wtor::get_timeseries_data(code="ITS_MTV_AX", reporting_economies = "008") 
+
+```
+
+
+## Bi-lateral trade flows
+
 
 # Comparison of MFN tariff rates
 

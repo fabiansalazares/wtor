@@ -10,7 +10,7 @@ get_products_sectors <- function(
     lang="1",
     nocache=F) {
 
-  cache_key <- sprintf("timeseries_products_sectors_%s", pc)
+  cache_key <- sprintf("timeseries_products_sectors_%s", pc) |> tolower()
 
   cached_products_sectors <- get_cached_object(cache_key)
 
