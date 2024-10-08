@@ -3,7 +3,7 @@
 #' @param i Character string. Either 'all' or a string to filter indicators' description for.
 #' @param t Character string. Topics to filter for, separated by commas.
 #' @param pc Character string. Product classifications: must be one of the following: 'all', 'none', or a list of comma separated codes.
-#' @param tp Character string. Filter for indicators with a trade partner paramenter. Either 'all', 'yes' or no.
+#' @param tp Character string. Filter for indicators containing a trade partner parameter. Either 'all', 'yes' or 'no'.
 #' @param frq Character string. Filter for the frequency available. Either 'all' or 'A', 'S', 'Q', 'M' (anually, semi-anually, quarterly or monthly).
 #' @param lang Integer. Set to 1 for English, 2 for French or 3 for Spanish
 #' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
@@ -32,7 +32,7 @@ get_timeseries_available_indicators <- function(
       "https://api.wto.org/timeseries/v1/indicators?",
       "i=", i,
       "&t=", t,
-      "&pc=",pc,
+      "&pc=", pc,
       "&tp=", tp,
       "&frq=", frq,
       "&lang=", lang

@@ -24,7 +24,7 @@ get_timeseries_available_indicators(
 
 \item{pc}{Character string. Product classifications: must be one of the following: 'all', 'none', or a list of comma separated codes.}
 
-\item{tp}{Character string. Filter for indicators with a trade partner paramenter. Either 'all', 'yes' or no.}
+\item{tp}{Character string. Filter for indicators containing a trade partner parameter. Either 'all', 'yes' or 'no'.}
 
 \item{frq}{Character string. Filter for the frequency available. Either 'all' or 'A', 'S', 'Q', 'M' (anually, semi-anually, quarterly or monthly).}
 

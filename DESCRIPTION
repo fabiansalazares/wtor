@@ -21,3 +21,7 @@ Imports:
     fs (>= 1.6.4)
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

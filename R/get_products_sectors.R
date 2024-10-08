@@ -10,7 +10,9 @@ get_products_sectors <- function(
     lang="1",
     nocache=F) {
 
-  cached_products_sectors <-get_cached_object("timeseries_products_sectors")
+  cache_key <- sprintf("timeseries_products_sectors_%s", pc) |> tolower()
+
+  cached_products_sectors <- get_cached_object(cache_key)
 
   if(!is.null(cached_products_sectors) & !nocache) {
     message("get_products_sectors: returning from cache.")
@@ -62,7 +64,7 @@ get_products_sectors <- function(
   ) |>
     dplyr::bind_rows()
 
-  set_cached_object(key="timeseries_products_sectors",
+  set_cached_object(key=cache_key,
                     value= products_sectors_df)
 
   return(

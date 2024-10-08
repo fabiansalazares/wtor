@@ -18,9 +18,10 @@ check_partner_economies <- function(.countries) {
 #' @param .economies Vector of character strings containing the economies codes' to be checked.
 check_economies_names_codes <- function(
     .countries,
-    .economies) {
-  reporting_economies_df <- .economies
+    .economies
+    ) {
 
+  reporting_economies_df <- .economies
 
   if(!"name" %in% names(reporting_economies_df)) {
     stop("wtor: check_economies_names_codes: .economies does not have a 'name' column")
@@ -28,7 +29,6 @@ check_economies_names_codes <- function(
 
   codes_to_return <- c()
   invalid_countries <- NULL
-
 
   # if all the reporting economies are country codes
   if(all(.countries %in% reporting_economies_df$code)) {
@@ -126,13 +126,16 @@ get_timeseries_data <- function(
     stop("wtor: get_timeseries: no code was passed as argument, but it is required.")
   }
 
-  # translate country names to country codes, if needed, both for reporting and partner economies
-  reporting_economies_codes <- check_reporting_economies(reporting_economies)
+  reporting_economies_codes <- ifelse(reporting_economies=="all", "all", check_reporting_economies(reporting_economies))
   if(is.null(reporting_economies_codes)) {
     stop("wtor: get_timeseries_data: reporting economies contain invalid codes or names. For a list of valid codes and names, execute wtor::get_reporting_economies()")
   }
 
-  partner_economies_codes <- check_partner_economies(partner_economies)
+  if (is.null(partner_economies)) {
+    partner_economies_codes <- partner_economies
+  } else {
+    partner_economies_codes <- ifelse(partner_economies=="all", "all", check_partner_economies(partner_economies))
+  }
 
   # generate a cache key and retrieve from cache if it does exist
   cache_key <- tolower(
@@ -146,13 +149,10 @@ get_timeseries_data <- function(
       "_",
       time_period,
       "_",
-      products_or_sectors,
+      products_or_sectors |> tolower(),
       "_",
-      subproducts_subsectors,
-      "_",
-      offset,
-      "_",
-      max_records
+      subproducts_subsectors |> tolower(),
+      "_"
     )
   ) |>
     stringr::str_replace_all(" ", "_")
@@ -170,25 +170,24 @@ get_timeseries_data <- function(
   # retrieve data from WTO API
   request_url <- "http://api.wto.org/timeseries/v1/data"
 
-  message(request_url)
-
   # generate body of POST request - line by line of the JSON object
   ## indicator
-  indicator_line <- glue::glue('"i": "{code}"')
+  # indicator_line <- glue::glue('"i": "{code}"')
+  indicator_line <- sprintf('"i": "%s"', code)
 
-  ## reporting economies
+  ## reporting economies ----
   if(is.null(reporting_economies_codes)) {
     reporting_economies_line <- NULL
   } else {
     if(length(reporting_economies_codes) == 1) {
-      reporting_economies_line <- glue::glue('"r": "{reporting_economies_codes}"')
+      reporting_economies_line <- sprintf('"r": "%s"', reporting_economies_codes)
     } else {
       reporting_economies_list <- paste(reporting_economies_codes, collapse=",")
-      reporting_economies_line <- glue::glue('"r": "{reporting_economies_list}"')
+      reporting_economies_line <- sprintf('"r": "%s"', reporting_economies_list)
     }
   }
 
-  ## partner economies
+  ## partner economies ----
   if(is.null(partner_economies_codes)) {
     partner_economies_line <- NULL
   } else {

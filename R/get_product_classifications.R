@@ -8,7 +8,9 @@ get_product_classifications <- function(
     lang="1",
     nocache=F) {
 
-  cached_product_classifications <-get_cached_object("timeseries_product_classifications")
+  cache_key <- "timeseries_product_classifications"
+
+  cached_product_classifications <-get_cached_object(cache_key)
 
   if(!is.null(cached_product_classifications) & !nocache) {
     message("get_product_classifications: returning from cache.")
@@ -50,7 +52,7 @@ get_product_classifications <- function(
   ) |>
     dplyr::bind_rows()
 
-  set_cached_object(key="timeseries_product_classifications",
+  set_cached_object(key=cache_key,
                     value= product_classifications_df)
 
   return(
