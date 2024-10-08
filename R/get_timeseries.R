@@ -155,7 +155,9 @@ get_timeseries_data <- function(
       "_"
     )
   ) |>
-    stringr::str_replace_all(" ", "_")
+    stringr::str_replace_all(" ", "_") |>
+    stringr::str_replace_all("[^[:alnum:]]", "_")
+
 
   message("cache_key: ", cache_key)
 
