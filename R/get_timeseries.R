@@ -155,8 +155,7 @@ get_timeseries_data <- function(
       "_"
     )
   ) |>
-    stringr::str_replace_all(" ", "_") |>
-    stringr::str_replace_all("[^[:alnum:]]", "_")
+    digest::digest(algo="md5")
 
 
   message("cache_key: ", cache_key)
