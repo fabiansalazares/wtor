@@ -20,12 +20,17 @@ get_timeseries_data_count <- function(
     stop("wtor: get_timeseries_data_count(): 'code' argument is NULL")
   }
 
-  reporting_economies_codes <- check_reporting_economies(reporting_economies)
+  reporting_economies_codes <- paste(check_reporting_economies(reporting_economies), collapse=",")
   if(is.null(reporting_economies_codes)) {
     stop("wtor: get_timeseries_data: reporting economies contain invalid codes or names. For a list of valid codes and names, execute wtor::get_reporting_economies()")
   }
-  reporting_economies_codes <- paste(check_reporting_economies(reporting_economies), collapse=",")
-  partner_economies_codes <- paste(check_partner_economies(partner_economies), collapse=",")
+
+  if (is.null(partner_economies)) {
+    partner_economies_codes <- partner_economies
+  } else {
+    partner_economies_codes <- ifelse(partner_economies=="all", "all", paste(check_partner_economies(partner_economies), collapse=","))
+  }
+
 
   cache_key <- tolower(
     paste0(

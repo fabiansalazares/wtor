@@ -1,5 +1,5 @@
 ---
-title: "timeseries_database"
+title: "WTO Timeseries API"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{timeseries_database}
@@ -42,27 +42,217 @@ To test if the package has been correctly set up and working, retrieve a list of
 
 The WTO Timeseries API includes a rich set of bilateral trade flows between members, under the category of "International Trade Statistics". To retrieve a list of all the available indicators in this category, execute `wtor::get_timeseries_available_indicators() |>  dplyr::filter(categoryCode == "ITS")`.
 
-## Total trade flows
+## Total trade flows of a member
 
 Let us retrieve and plot the total value of merchandise exports reported by Albania, to the world economy, grouping by sector of exports:
 
 ```{r}
 
-wtor::get_timeseries_data(code="ITS_MTV_AX", reporting_economies = "008") 
+albania_exports_by_sector_df <- wtor::get_timeseries_data(code="ITS_MTV_AX", reporting_economies = "008") |> 
+  left_join(
+    wtor::get_products_sectors("SITC3") |> rename(productorsectorcode = code),
+    by="productorsectorcode"
+  ) |> 
+  rename(sector = productorsectorcode) |> 
+  select(year, value, reportingeconomycode, name) 
+
+ggplot(data=albania_exports_by_sector_df,
+       mapping=aes(
+         x=as.integer(year),
+         y=value,
+         color=name)) +
+  geom_line()
+
+```
+
+## Bi-lateral services trade flows
+
+Let us now retrieve the bilateral services flows between two countries, France and Spain.
+
+```{r}
+
+# France's ISO 3166 country code is 250
+# Spain's ISO 3166 country code is 724
+
+spain_france_bilateral_flows_df <- wtor::get_timeseries_data(code="BAT_BV_X", reporting_economies = "724", partner_economies = "250") |> 
+  left_join(
+    wtor::get_products_sectors("BOP6") |> rename(productorsectorcode = code),
+    by="productorsectorcode"
+  ) |> 
+  rename(sector = productorsectorcode) |> 
+  select(year, value, reportingeconomycode, name) 
+
+ggplot(data=spain_france_bilateral_flows_df,
+       mapping=aes(
+         x=as.integer(year),
+         y=value,
+         color=name)) +
+  geom_line()
 
 ```
 
 
-## Bi-lateral trade flows
+## Bilateral merchandise flows by MT codes
 
+Let us retrieve the imports of a given reporting economy from another partner economies, by detailed MT code. We will then represent it as a scatter plot in which the X-axis will represent the value of American imports from Turkey, and the Y-axis will correspond to the value of the Turkish imports from the United States, for every MT sector.
 
-# Comparison of MFN tariff rates
+```{r}
 
-## Average rates
+country1_display_name <- "USA"
+country2_display_name <- "Turkey"
+
+country1_code <- wtor::get_reporting_economies() |> filter(grepl("United States of America", name)) |> _$code
+country2_code <- wtor::get_reporting_economies() |> filter(grepl("Tür", name)) |> _$code
+
+bilateral_trade_df <- wtor::get_timeseries_data(code="HS_M_0020", reporting_economies = country1_code) |> filter(partnereconomycode == country2_code) |> 
+  bind_rows(wtor::get_timeseries_data(code="HS_M_0020", reporting_economies = country2_code) |> 
+              filter(partnereconomycode==country1_code)
+  ) |> 
+  left_join(
+    wtor::get_reporting_economies() |> rename(reportingeconomycode = code),
+    by="reportingeconomycode"
+  ) |> 
+  filter(stringr::str_length(productorsectorcode) == 2) |> 
+  left_join(
+    wtor::get_products_sectors("MT2") |> rename(productorsectorcode = code, sector_name = name) |> filter(stringr::str_length(productorsectorcode)==2),
+    by="productorsectorcode"
+  ) |> 
+  select(name, sector_name, year, value) |> 
+  pivot_wider(id_cols = c("sector_name", "year"), names_from="name", values_from="value") |> 
+  mutate(year = as.integer(year)) |> 
+  rename(country1=3,
+         country2=4)
+
+bilateral_trade_df[is.na(bilateral_trade_df)] <- 0
+
+ggplot(data=bilateral_trade_df,
+       mapping=aes(
+         x=country1,
+         y=country2,
+         color=year
+         )) +
+  geom_point() +
+  # scale_color_brewer(palette = "Set2") +
+  scale_color_gradient(low = "red", high = "darkblue") +
+  scale_x_continuous(labels = scales::number_format(accuracy=1, scale=1e-6, suffix="M", big.mark=".", decimal.mark=",")) +
+  labs(x=country1_display_name,
+       y=country2_display_name)
+
+```
+## Comparison of MFN tariff rates
+
+Let us compare the simple average ad-valorem duty MFN rates of two given countries, by plotting the MFN rates they apply in a scatter plot, with every point representing a given MT sector average MFN rate.
+
+```{r}
+
+country1_display_name <- "Brazil"
+country2_display_name <- "India"
+
+country1_code <- wtor::get_partner_economies() |> filter(grepl(country1_display_name, name)) |> _$code
+# country2_code <- wtor::get_partner_economies() |> filter(grepl(country2_display_name, name)) |> _$code
+
+country2_code <- "356"
+
+indicator_code <- "HS_A_0010"
+
+mfn_rates_df <- bind_rows(
+  wtor::get_timeseries_data(code=indicator_code, reporting_economies =  country1_code),
+  wtor::get_timeseries_data(code=indicator_code, reporting_economies =  country2_code),
+)  |> 
+  left_join(
+    wtor::get_reporting_economies() |> rename(reportingeconomycode = code),
+    by="reportingeconomycode"
+  ) |> 
+  left_join(
+    wtor::get_products_sectors() |> rename(productorsectorcode=code, sector_name=name),
+    by="productorsectorcode"
+  ) |> 
+  filter(stringr::str_length(productorsectorcode) == 2) |> 
+  select(year, name, productorsectorcode, sector_name, value) |> 
+  # group_by(name) |> 
+  # filter(year==max(year)) |> 
+  pivot_wider(id_cols = c("year", "sector_name", "productorsectorcode"), names_from="name", values_from="value") |> 
+  rename(
+    country1_rate = 4,
+    country2_rate = 5
+  )
+
+ggplot(
+  data=mfn_rates_df,
+  mapping=aes(
+    x=country1_rate,
+    y=country2_rate,
+    color=as.integer(year),
+    alpha=0.5
+  )
+) +
+  geom_point() +
+  scale_color_gradient(low = "red", high = "darkblue") +
+  labs(x=country1_display_name,
+       y=country2_display_name)
+
+```
+
+## Average MFN rates by year, for all reporting countries
 
 ## A map of MFN tariff rates by countries
 
 # Bi-lateral tariff rates
+
+```{r}
+
+country1_display_name <- "United States of America"
+country2_display_name <- "China"
+
+country1_code <- wtor::get_reporting_economies() |> filter(grepl(country1_display_name, name)) |> _$code
+country2_code <- wtor::get_reporting_economies() |> filter(grepl(country2_display_name, name)) |> _$code
+
+country1_code <- "840"
+country2_code <- "156"
+
+indicator_code <- "HS_P_0070"
+
+bilateral_rates_df <- bind_rows(
+  wtor::get_timeseries_data(code=indicator_code, reporting_economies =  country1_code),
+  wtor::get_timeseries_data(code=indicator_code, reporting_economies =  country2_code),
+) |> 
+  left_join(
+    wtor::get_reporting_economies() |> rename(reportingeconomycode = code),
+    by="reportingeconomycode"
+  ) |> 
+  left_join(
+    wtor::get_products_sectors() |> rename(productorsectorcode=code, sector_name=name),
+    by="productorsectorcode"
+  ) |> 
+  # filter(stringr::str_length(productorsectorcode) == 2) |> 
+  select(year, name, productorsectorcode, value) |> 
+  # group_by(name) |> 
+  # filter(year==max(year)) |> 
+  pivot_wider(
+    id_cols = c("year", "productorsectorcode"),
+    names_from="name", 
+    values_from="value"
+    ) |> 
+  rename(
+    country1_rate = 2,
+    country2_rate = 3
+  )
+
+
+ggplot(
+  data=mfn_rates_df,
+  mapping=aes(
+    x=country1_rate,
+    y=country2_rate,
+    color=as.integer(year),
+    alpha=0.5
+  )
+) +
+  geom_point() +
+  scale_color_gradient(low = "red", high = "darkblue")
+
+
+```
 
 
 
