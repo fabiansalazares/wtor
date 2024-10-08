@@ -47,7 +47,7 @@ get_timeseries_data_count <- function(
       subproducts_subsectors
     )
   ) |>
-    stringr::str_replace_all(" ", "_")
+    digest::digest(algo="md5")
 
 
   cached_timeseries_data_count <- get_cached_object(cache_key)
