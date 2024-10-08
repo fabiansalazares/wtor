@@ -14,7 +14,8 @@ get_partner_economies <- function(
     lang="1",
     nocache=F) {
 
-  cache_key <- paste0("timeseries_partner_economies_", ig, "_", reg, "_", gp, "_", lang)
+  cache_key <- paste0("timeseries_partner_economies_", ig, "_", reg, "_", gp, "_", lang) |>
+    digest::digest(algo="md5")
 
   cached_partner_economies <-get_cached_object(cache_key)
 

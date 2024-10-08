@@ -14,9 +14,10 @@ get_reporting_economies <- function(
     lang="1",
     nocache=F) {
 
-  cache_key <- paste0("timeseries_reporting_economies_", ig, "_", reg, "_", gp, "_", lang)
+  cache_key <- paste0("timeseries_reporting_economies_", ig, "_", reg, "_", gp, "_", lang) |>
+    digest::digest(algo="md5")
 
-  cached_reporting_economies <-get_cached_object(cache_key)
+  cached_reporting_economies <- get_cached_object(cache_key)
 
   if(!is.null(cached_reporting_economies) & !nocache) {
     message("get_reporting_economies: returning from cache.")
