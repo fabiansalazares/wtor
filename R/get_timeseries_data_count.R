@@ -34,7 +34,7 @@ get_timeseries_data_count <- function(
 
   cache_key <- tolower(
     paste0(
-      "timeseries_",
+      "timeseriesdatacount_",
       code,
       "_",
       stringr::str_replace_all(reporting_economies_codes, ",", "_"),
@@ -49,13 +49,13 @@ get_timeseries_data_count <- function(
   ) |>
     digest::digest(algo="md5")
 
-
-  cached_timeseries_data_count <- get_cached_object(cache_key)
-
-  if(!is.null(cached_timeseries_data_count) & !nocache) {
-    message("get_timeseries_data_count(): returning from cache.")
-    return(cached_timeseries_data_count)
-  }
+#
+#   cached_timeseries_data_count <- get_cached_object(cache_key)
+#
+#   if(!is.null(cached_timeseries_data_count) & !nocache) {
+#     message("get_timeseries_data_count(): returning from cache.")
+#     return(cached_timeseries_data_count)
+#   }
 
 
 

@@ -270,7 +270,6 @@ get_timeseries_data <- function(
     format_output_line,
     mode_output_line,
     decimals_line,
-    # offset_line,
     max_records_line,
     heading_style_line,
     lang_line,
@@ -317,6 +316,7 @@ get_timeseries_data <- function(
       message("Items by request: ", pageitems)
     }
   }
+
 
   timeseries_data_df <- lapply(
     X=offset_vector,
