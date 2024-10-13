@@ -16,7 +16,7 @@ get_timeseries_data(
   decimals = "default",
   heading_style = "M",
   offset = 0,
-  max_records = 10000,
+  max_records = NULL,
   meta = FALSE,
   nocache = F,
   nopagination = F,
@@ -47,7 +47,7 @@ get_timeseries_data(
 
 \item{offset}{Number of datapoints to offset in the request. Usefull if manual pagination is to be implemented.}
 
-\item{max_records}{Maximum number of rows to return.}
+\item{max_records}{Maximum number of rows to return. Default is NULL. If NULL, the maximum number of rows will equal the number of datapoints returned by get_timeseries_data_count()}
 
 \item{meta}{TRUE to include metadata.}
 
