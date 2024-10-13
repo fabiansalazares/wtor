@@ -92,7 +92,7 @@ check_economies_names_codes <- function(
 #' @param decimals Either "default" or a string containing the number of decimals that the output should contain.
 #' @param heading_style Either "H" for human-readable headers and "M" for machine-readable codes.
 #' @param offset Number of datapoints to offset in the request. Usefull if manual pagination is to be implemented.
-#' @param max_records Maximum number of rows to return.
+#' @param max_records Maximum number of rows to return. Default is NULL. If NULL, the maximum number of rows will equal the number of datapoints returned by get_timeseries_data_count()
 #' @param heading_style Either "H" for human-readable headers and "M" for machine-readable codes.
 #' @param meta TRUE to include metadata.
 #' @param nocache TRUE to disable caching of results.
@@ -113,7 +113,7 @@ get_timeseries_data <- function(
     decimals="default", # dec number of decimals
     heading_style="M", # head heading style
     offset=0, # off - records to offset
-    max_records=10000, # max maximum number of records returned heading_style="M",
+    max_records=NULL, # max maximum number of records returned heading_style="M",
     meta=FALSE, # include metadata,
     nocache=F,
     nopagination=F,
@@ -167,6 +167,22 @@ get_timeseries_data <- function(
     message("Retrieving from local cache...")
     return(cached_timeseries)
   }
+
+
+  # perform pagination, f allowed and needed
+  # if pagination is not disabled, and the number of datapoints is greater than the maximum number of items per page,
+  # the request will be split in n=datapoints/maxitems, where datapoints is the expected number of datapoints, and
+  # maxitems is the maximum number allowed to each request. This parameter can be set as an argument
+  datapoints <- get_timeseries_data_count(
+    code,
+    reporting_economies = reporting_economies,
+    partner_economies = partner_economies,
+    time_period=time_period,
+    products_or_sectors = products_or_sectors,
+    subproducts_subsectors= subproducts_subsectors
+  ) |> _$n
+
+  message("Datapoints to be retrieved: ", datapoints)
 
   # retrieve data from WTO API
   request_url <- "http://api.wto.org/timeseries/v1/data"
@@ -233,14 +249,30 @@ get_timeseries_data <- function(
   if(!mode_output %in% c("full", "codes")) {
     stop("wtor: get_timeseries_data: mode argument must be either 'full' or 'codes'.")
   }
-  mode_output_line <- glue::glue('"mode": "{mode_output}"')
+  # mode_output_line <- glue::glue('"mode": "{mode_output}"')
+  mode_output_line <- sprintf('"mode": "%s"', mode_output)
 
   ## decimals
   decimals_line <- as.character(decimals)
-  decimals_line <- glue::glue('"dec": "{decimals_line}"')
+  # decimals_line <- glue::glue('"dec": "{decimals_line}"')
+  decimals_line <- sprintf('"dec": "%s"', decimals_line)
 
-  max_records <- format(max_records, scientific=FALSE)
-  max_records_line <- glue::glue('"max": {max_records}')
+
+  # by default, .max_records will be set to the number of expected datapoints
+  .max_records <- datapoints
+
+  # if argument max_records has been set, .max_records will be set to its value
+  if(!is.null(max_records)) {
+    .max_records <- max_records
+  }
+
+  # .max_records must not be greater than 1M in any case
+  if(.max_records > 999999) {
+    .max_records <- 999999
+  }
+
+  .max_records <- format(.max_records, scientific=FALSE)
+  max_records_line <- sprintf('"max": %s', .max_records)
 
   ## head
   if(!heading_style %in% c("H", "M")) {
@@ -284,21 +316,6 @@ get_timeseries_data <- function(
     collapse = ",\n"
   )
 
-
-  # perform pagination, f allowed and needed
-  # if pagination is not disabled, and the number of datapoints is greater than the maximum number of items per page,
-  # the request will be split in n=datapoints/maxitems, where datapoints is the expected number of datapoints, and
-  # maxitems is the maximum number allowed to each request. This parameter can be set as an argument
-  datapoints <- get_timeseries_data_count(
-    code,
-    reporting_economies = reporting_economies,
-    partner_economies = partner_economies,
-    time_period=time_period,
-    products_or_sectors = products_or_sectors,
-    subproducts_subsectors= subproducts_subsectors
-  ) |> _$n
-
-  message("Datapoints to be retrieved: ", datapoints)
 
   if(nopagination) {
     offset_vector <- c(0)
