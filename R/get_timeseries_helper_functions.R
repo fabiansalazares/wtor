@@ -2,7 +2,6 @@
 #' @param  .economy Character string. Reporting economy code or name.
 #' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes.
 #' @return A tibble containing the full list of NMF tariffs applied.
-#' @example get_tariffs_nmf(.economy="Japan", .full_names=T)
 #' @export
 get_tariffs_nmf <- function(
     .economy,
