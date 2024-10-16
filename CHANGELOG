@@ -1,3 +1,9 @@
+# 0.4
+
+* Added helper functions: get_tariff_preferential() and get_tariff_nmf()
+* Fixed minor errors
+* Refactored cache key generation -> now, an md5sum hash is generated.
+
 # 0.3.1
 
 * Fix cache keys for get_geographical_regions(), get_groups(), get_partner_economies() and get_reporting_economies(). Now, the cache key does actually depend on the request being performed.
