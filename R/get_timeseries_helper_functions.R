@@ -5,7 +5,7 @@
 #' @param  .nocache Logical. TRUE to disable caching of results.
 #' @return A tibble containing the full list of NMF tariffs applied.
 #' @export
-get_tariffs_nmf <- function(
+get_tariff_nmf <- function(
     .economy,
     .full_names = T,
     .last_period = T,
