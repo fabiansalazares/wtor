@@ -125,7 +125,7 @@ get_tariff_preferential <- function(
   # include a column called "full_name" containing the full description of the HS6 code
   if(.full_names) {
     # claude 3.5 code
-    hs6_code_names_df <- get_products_sectors("HS6") |>
+    hs6_code_names_df <- get_products_sectors("HS") |>
       dplyr::mutate(
         level1 = substr(code, 1, 2),
         level2 = substr(code, 1, 4),
@@ -158,7 +158,6 @@ get_tariff_preferential <- function(
 
   return(.tariffs_preferential_df)
 }
-
 
 #' Helper function for `get_timeseries_data()`: retrieve bilateral goods trade between two reporting members
 #' @param .economy Character string. Reporting economy code or name.
@@ -222,7 +221,7 @@ get_bilateral_goods_trade <- function(
   if(.full_names) {
     if(.hs6_products) {
       # claude 3.5 code
-      hs6_code_names_df <- get_products_sectors("HS6") |>
+      hs6_code_names_df <- get_products_sectors("HS") |>
         dplyr::mutate(
           level1 = substr(code, 1, 2),
           level2 = substr(code, 1, 4),
@@ -366,8 +365,6 @@ get_services_imports <- function(
 
 }
 
-
-
 #' Helper function for `get_timeseries_data()`: retrieve services exports of a given economy
 #' @param .economy Character string. Reporting economy code or name.
 #' @param .partner Character string. Partner economy code or name.
@@ -462,8 +459,11 @@ get_services_exports <- function(
 
 }
 
-# bind_rows(get_tariff_nmf("Japan") |>
+# dplyr::bind_rows(get_tariff_nmf("Japan") |>
 # dplyr::mutate(tipo="nmf"), get_tariff_preferential("Japan", "Spain") |>
 # dplyr::mutate(tipo="pref")) |>
 # dplyr::mutate(code = productorsectorcode |> as.integer()) |>
 # ggplot2::ggplot(aes(x=code, y=value, color=tipo))  + geom_point()
+
+
+# wtor::get_services_exports("Japan", "Spain")
