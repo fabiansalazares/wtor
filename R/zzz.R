@@ -57,6 +57,7 @@ get_api_key <- function() {
 
 #' Retrieve an object from local cache.
 #' @param key Character string. Cached object key.
+#' @export
 get_cached_object <- function(key) {
   return(
     wtor_env$cache$get(key, missing = NULL)

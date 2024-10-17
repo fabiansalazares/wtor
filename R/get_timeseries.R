@@ -39,7 +39,7 @@ check_economies_names_codes <- function(
   if(all(.countries %in% reporting_economies_df$name)) {
     return(
       reporting_economies_df |>
-        dplyr::filter(any(stringr::str_detect(.countries, fixed(name)))) |>
+        dplyr::filter(any(stringr::str_detect(.countries, stringr::fixed(name)))) |>
         # dplyr::filter(name %in% .countries) |>
         _$code
     )
