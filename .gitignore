@@ -7,3 +7,6 @@
 .DS_Store
 .quarto
 README.html
+inst/doc
+vignette/
+vignettes/*

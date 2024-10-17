@@ -160,8 +160,84 @@ get_tariff_preferential <- function(
 }
 
 
-# bind_rows(get_tariffs_nmf("Japan") |>
-# dplyr::mutate(tipo="nmf"), get_preferential_nmf("Japan", "Spain") |>
+#' Helper function for `get_timeseries_data()`: retrieve bilateral goods trade between two reporting members
+#' @param .economy Character string. Reporting economy code or name.
+#' @param .partner Character string. Partner economy code or name.
+#' @param .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes.
+#' @param .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
+#' @param .mtn_sectors Character string. MTN sectors to filter for. Default is "all".
+#' @param  .nocache Logical. TRUE to disable caching of results.
+#' @return A tibble containing the full list of NMF tariffs applied.
+#' @export
+get_bilateral_goods_trade <- function(
+    .economy,
+    .partner,
+    .full_names = T,
+    .last_period = T,
+    .mtn_sectors = "all",
+    .nocache = F
+) {
+
+  # retrieve the code corresponding to the economy passed as argument in .economy, if necessary, or return if error
+  .economy_code <- .economy
+
+  if(.economy %in% (get_reporting_economies() |> _$name)) {
+    .economy_code <- get_reporting_economies() |> dplyr::filter(name == .economy) |> _$code
+  }
+
+  if(!.economy_code %in% (get_reporting_economies() |> _$code)) {
+    stop(sprintf("Economy %s is not a valid reporting economy code or name", .economy_code))
+  }
+
+  # retrieve the code corresponding to the partner economy passed as argument in .economy, if necessary, or return if error
+  .partner_code <- .partner
+
+  if(.partner %in% (get_partner_economies() |> _$name)) {
+    .partner_code <- get_reporting_economies() |> dplyr::filter(name == .partner) |> _$code
+  }
+
+  if(!.partner_code %in% (get_reporting_economies() |> _$code)) {
+    stop(sprintf("Partner %s is not a valid reporting partner code or name", .partner_code))
+  }
+
+
+  # retrieve bilateral preferential  tariffs data
+  .bilateral_goods_trade_df <- get_timeseries_data(
+    # code = "HS_P_0070",
+    code = "HS_M_0020",
+    reporting_economies = .economy_code, # "all",
+    partner_economies = .partner_code,
+    products_or_sectors = .mtn_sectors,
+    time_period = "all",
+    pageitems = 999999,
+    nocache = .nocache
+  )
+
+  if(.full_names) {
+    mt2_code_names_df <- get_products_sectors("MT2")
+
+    .bilateral_goods_trade_df <- .bilateral_goods_trade_df |>
+      dplyr::left_join(
+        mt2_code_names_df |>
+          dplyr::rename(productorsectorcode= code),
+        by="productorsectorcode"
+      ) |>
+      dplyr::rename(
+        product_name = name
+      )
+  }
+
+  if(.last_period) {
+    .bilateral_goods_trade_df <- .bilateral_goods_trade_df |>
+      dplyr::filter(as.integer(year) == max(as.integer(year)))
+  }
+
+  return(.bilateral_goods_trade_df)
+}
+
+
+# bind_rows(get_tariff_nmf("Japan") |>
+# dplyr::mutate(tipo="nmf"), get_tariff_preferential("Japan", "Spain") |>
 # dplyr::mutate(tipo="pref")) |>
 # dplyr::mutate(code = productorsectorcode |> as.integer()) |>
 # ggplot2::ggplot(aes(x=code, y=value, color=tipo))  + geom_point()
