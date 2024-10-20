@@ -93,10 +93,12 @@ get_tariff_preferential <- function(
   # retrieve the code corresponding to the economy passed as argument in .economy, if necessary, or return if error
   .economy_code <- .economy
 
+  # if the .economy is a valid name, then set .economy_code to the corresponding code
   if(.economy %in% (get_reporting_economies() |> _$name)) {
     .economy_code <- get_reporting_economies() |> dplyr::filter(name == .economy) |> _$code
   }
 
+  # if the .economy_code is still not a valid name, stop execution
   if(!.economy_code %in% (get_reporting_economies() |> _$code)) {
     stop(sprintf("Economy %s is not a valid reporting economy code or name", .economy_code))
   }
@@ -108,7 +110,8 @@ get_tariff_preferential <- function(
     .partner_code <- get_reporting_economies() |> dplyr::filter(name == .partner) |> _$code
   }
 
-  if(!.partner_code %in% (get_reporting_economies() |> _$code)) {
+  # .partner_code can be "all" or "default", in addition to a valid partner economy code
+  if(!.partner_code %in% (get_reporting_economies() |> _$code) & !.partner_code %in% c("all", "default")) {
     stop(sprintf("Partner %s is not a valid reporting partner code or name", .partner_code))
   }
 
