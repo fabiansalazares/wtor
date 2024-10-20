@@ -36,6 +36,7 @@ get_tariff_nmf <- function(
   # include a column called "full_name" containing the full description of the HS6 code
   if(.full_names) {
 
+    browser()
     # claude 3.5 code
     hs6_code_names_df <- get_products_sectors("HS") |>
       dplyr::mutate(
@@ -44,7 +45,7 @@ get_tariff_nmf <- function(
         level3 = code
       )
 
-    hs6_code_names_df |>
+    hs6_code_names_df <- hs6_code_names_df |>
       # Join the tibble with itself to get descriptions for each level
       dplyr::left_join(dplyr::select(hs6_code_names_df, code, name), by = c("level1" = "code"), suffix = c("", "_level1")) |>
       dplyr::left_join(dplyr::select(hs6_code_names_df, code, name), by = c("level2" = "code"), suffix = c("", "_level2")) |>
@@ -59,7 +60,7 @@ get_tariff_nmf <- function(
 
     .tariffs_nmf_df <- .tariffs_nmf_df |>
       dplyr::left_join(
-        hs6_code_names_df |> dplyr::rename(productorsectorcode= code), by="productorsectorcode"
+        hs6_code_names_df |> dplyr::rename(productorsectorcode=code), by="productorsectorcode"
       )
 
 
@@ -135,7 +136,7 @@ get_tariff_preferential <- function(
         level3 = code
       )
 
-    hs6_code_names_df |>
+    hs6_code_names_df <- hs6_code_names_df |>
       # Join the tibble with itself to get descriptions for each level
       dplyr::left_join(dplyr::select(hs6_code_names_df, code, name), by = c("level1" = "code"), suffix = c("", "_level1")) |>
       dplyr::left_join(dplyr::select(hs6_code_names_df, code, name), by = c("level2" = "code"), suffix = c("", "_level2")) |>
