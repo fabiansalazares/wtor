@@ -36,7 +36,6 @@ get_tariff_nmf <- function(
   # include a column called "full_name" containing the full description of the HS6 code
   if(.full_names) {
 
-    browser()
     # claude 3.5 code
     hs6_code_names_df <- get_products_sectors("HS") |>
       dplyr::mutate(
