@@ -1,3 +1,5 @@
+
+
 #' Helper function for `get_timeseries_data()`: retrieve all NMF tariffs for a given reporting economy.
 #' @param  .economy Character string. Reporting economy code or name.
 #' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes.
@@ -12,6 +14,7 @@ get_tariff_nmf <- function(
     .nocache = F
 ) {
 
+
   # retrieve the code corresponding to the economy passed as argument in .economy, if necessary, or return if error
   .economy_code <- .economy
 
@@ -23,6 +26,15 @@ get_tariff_nmf <- function(
     stop(sprintf("Economy %s is not a valid reporting economy code or name", .economy_code))
   }
 
+  # if the requested economy is an EU-member state, return NULL and display warning: the requested economy should be European Union instead.
+  if(.economy_code %in% (wtor::get_reporting_economies(gp="918") |> _$code)) {
+    message(
+      sprintf("%s is a EU member. To retrieve the NMF schedule of a EU-member state, please request instead the NMF tariff schedule for European Union.",
+              .economy))
+    message("Returning NULL")
+    return(NULL)
+  }
+
   # retrieve NMF tariffs data
   .tariffs_nmf_df <- get_timeseries_data(
     code = "HS_A_0015",
@@ -31,7 +43,6 @@ get_tariff_nmf <- function(
     pageitems=999999,
     nocache = .nocache
   )
-
 
   # include a column called "full_name" containing the full description of the HS6 code
   if(.full_names) {
@@ -61,8 +72,6 @@ get_tariff_nmf <- function(
       dplyr::left_join(
         hs6_code_names_df |> dplyr::rename(productorsectorcode=code), by="productorsectorcode"
       )
-
-
   }
 
   if(.last_period) {
@@ -72,7 +81,6 @@ get_tariff_nmf <- function(
 
   return(.tariffs_nmf_df)
 }
-
 
 #' Helper function for `get_timeseries_data()`: retrieve bilateral preferential tariffs for a given reporting economy and a partner economy.
 #' @param .economy Character string. Reporting economy code or name.
