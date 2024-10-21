@@ -16,8 +16,7 @@ By Miguel Fabián Salazar - miguel@fabiansalazar.es - [fabiansalazar.es](https:/
 
 # To-do
 
-* Select reporting and partner economies by ISO code.
-* Implement unimplemented APIs. As of 6/8/2024, only the Timeseries API is fully working.
+* Implement unimplemented APIs. As of Oct 21st, 2024, Timeseries API is fully working. Quantitative Restrictions API partially working, and ePing remains unimplemented.
 
 # Timeseries API
 
