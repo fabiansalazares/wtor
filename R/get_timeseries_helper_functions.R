@@ -208,7 +208,7 @@ get_bilateral_goods_trade <- function(
     .partner_code <- get_reporting_economies() |> dplyr::filter(name == .partner) |> _$code
   }
 
-  if(!.partner_code %in% (get_reporting_economies() |> _$code)) {
+  if(!.partner_code %in% (get_reporting_economies() |> _$code) & !.partner_code %in% c("all", "default")) {
     stop(sprintf("Partner %s is not a valid reporting partner code or name", .partner_code))
   }
 
