@@ -1,6 +1,6 @@
 #' Retrieve a list of valid codes for products (goods) and sectors (services).
 #' @param pc Character string. Product classification to filter for. See `get_product_classification()`. Default is 'all'.
-#' @param lang Numeric. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param lang Numeric. Set to "1" for English, "2" for French or "3" for Spanish
 #' @param nocache Logical. If TRUE, disables retrieval of results from local cache.
 #' @returns A tibble containing the available periods.
 #' @examples get_periods()
@@ -10,7 +10,7 @@ get_products_sectors <- function(
     lang="1",
     nocache=F) {
 
-  cache_key <- sprintf("timeseries_products_sectors_%s", pc) |> tolower()
+  cache_key <- sprintf("timeseries_products_sectors_%s_%s", pc, lang) |> tolower()
 
   cached_products_sectors <- get_cached_object(cache_key)
 

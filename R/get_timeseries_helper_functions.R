@@ -208,7 +208,7 @@ get_bilateral_goods_trade <- function(
     .partner_code <- get_reporting_economies() |> dplyr::filter(name == .partner) |> _$code
   }
 
-  if(!.partner_code %in% (get_reporting_economies() |> _$code)) {
+  if(!.partner_code %in% (get_reporting_economies() |> _$code) & !.partner_code %in% c("all", "default")) {
     stop(sprintf("Partner %s is not a valid reporting partner code or name", .partner_code))
   }
 
@@ -467,6 +467,47 @@ get_services_exports <- function(
   }
 
   return(.services_exports_df)
+
+}
+
+
+#' Helper function for `get_products_sectors()`: retrieve full names for HS products and sectores
+#' @param .hs_level Numeric. HS Level. Default is 6
+#' @param  .nocache Logical. TRUE to disable caching of results.
+#' @return A tibble containing the full list of NMF tariffs applied.
+#' @export
+get_names_hs_products <- function(
+    .hs_level=6,
+    .nocache=F,
+    .lang="1"
+    ) {
+
+  hs_code_names_df <- get_products_sectors("HS", lang=.lang) |>
+    dplyr::mutate(
+      level1 = substr(code, 1, 2),
+      level2 = substr(code, 1, 4),
+      level3 = code
+    )
+
+  hs_code_names_df <- hs_code_names_df |>
+    # Join the tibble with itself to get descriptions for each level
+    dplyr::left_join(dplyr::select(hs_code_names_df, code, name), by = c("level1" = "code"), suffix = c("", "_level1")) |>
+    dplyr::left_join(dplyr::select(hs_code_names_df, code, name), by = c("level2" = "code"), suffix = c("", "_level2")) |>
+    # Combine descriptions for rows with n-character codes
+    dplyr::mutate(
+      full_name= dplyr::case_when(
+        nchar(code) == .hs_level ~ paste(name_level1, name_level2, name, sep = " - "),
+        TRUE ~ name
+      )
+    ) |>
+    dplyr::filter(stringr::str_length(hierarchy) == .hs_level) |>
+    dplyr::select(code, full_name) |>
+      dplyr::mutate(full_name = htmltools::htmlEscape(full_name, attribute = FALSE)) |>
+      dplyr::mutate(full_name = stringr::str_remove_all(full_name,"'"))
+
+
+
+  hs_code_names_df
 
 }
 
