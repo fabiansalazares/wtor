@@ -478,11 +478,11 @@ get_services_exports <- function(
 #' @export
 get_names_hs_products <- function(
     .hs_level=6,
-    .nocache=F
+    .nocache=F,
+    .lang="1"
     ) {
 
-
-  hs_code_names_df <- get_products_sectors("HS") |>
+  hs_code_names_df <- get_products_sectors("HS", lang=.lang) |>
     dplyr::mutate(
       level1 = substr(code, 1, 2),
       level2 = substr(code, 1, 4),
