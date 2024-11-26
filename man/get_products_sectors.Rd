@@ -9,7 +9,7 @@ get_products_sectors(pc = "all", lang = "1", nocache = F)
 \arguments{
 \item{pc}{Character string. Product classification to filter for. See `get_product_classification()`. Default is 'all'.}
 
-\item{lang}{Numeric. Set to 1 for English, 2 for French or 3 for Spanish}
+\item{lang}{Numeric. Set to "1" for English, "2" for French or "3" for Spanish}
 
 \item{nocache}{Logical. If TRUE, disables retrieval of results from local cache.}
 }

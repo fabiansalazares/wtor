@@ -474,6 +474,7 @@ get_services_exports <- function(
 #' Helper function for `get_products_sectors()`: retrieve full names for HS products and sectores
 #' @param .hs_level Numeric. HS Level. Default is 6
 #' @param  .nocache Logical. TRUE to disable caching of results.
+#' @param .lang Character string. Language of the returned output. Default is "1". "1" for English, "2" for French and "3" for Spanish.
 #' @return A tibble containing the full list of NMF tariffs applied.
 #' @export
 get_names_hs_products <- function(
@@ -509,6 +510,30 @@ get_names_hs_products <- function(
 
   hs_code_names_df
 
+}
+
+#' Get a list of the economies belonging to a given group
+#' @param .type Character string. Either "reporting" or "partner". Default is "reporting".
+#' @param .group Character string. Code of the group whose members are to be retrieved. Default is NULL. Retrieve a list of codes with `get_groups()`
+#' @param .lang Character string. Language of the returned output. Default is "1". "1" for English, "2" for French and "3" for Spanish.
+#' @param  .nocache Logical. TRUE to disable caching of results. Default is FALSE.
+#' @export
+get_group_members <- function(
+    .type="reporting",
+    .group = NULL,
+    .lang="1",
+    .nocache=F
+) {
+
+  if (.type == "reporting") {
+    get_reporting_economies(
+      gp=.group
+    )
+  } else {
+    get_partner_economies(
+      gp=.group
+    )
+  }
 }
 
 # dplyr::bind_rows(get_tariff_nmf("Japan") |>
