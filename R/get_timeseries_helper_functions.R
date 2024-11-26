@@ -536,6 +536,24 @@ get_group_members <- function(
   }
 }
 
+#' Check whether a given economy is a member of the WTO
+#' @param .code Character string. ISO code of the economy whose WTO member status is to be checked.
+#' @param  .nocache Logical. TRUE to disable caching of results. Default is FALSE.
+#' @returns TRUE is the economy is a member of the WTO
+#' @export
+is_wto_member <- function(
+    .code,
+    .nocache="F"
+) {
+
+  if (.code %in% (get_group_members(.group="900") |> _$code)){
+    return(TRUE)
+  }
+
+  return(FALSE)
+
+}
+
 # dplyr::bind_rows(get_tariff_nmf("Japan") |>
 # dplyr::mutate(tipo="nmf"), get_tariff_preferential("Japan", "Spain") |>
 # dplyr::mutate(tipo="pref")) |>
