@@ -1,7 +1,10 @@
-#' Create a local `cachem` object to store the local cache, either in disk or memory.
+#' Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTOR_CACHE_DIR
 #' @param type Character string. Choose between types of cache to be created. Either 'disk' or 'memory'. Default is 'disk'
 create_cache <- function(type="disk") {
-  cache_disk_dir <- paste0(tools::R_user_dir("wtor", which="data"), "/cache")
+  cache_disk_dir <- Sys.getenv("WTOR_CACHE_DIR")
+  if(cache_disk_dir == ""){
+    cache_disk_dir <- paste0(tools::R_user_dir("wtor", which="data"), "/cache")
+  }
 
   if(type=="disk") {
     if(!fs::dir_exists(cache_disk_dir)) {
