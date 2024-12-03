@@ -19,7 +19,8 @@ Imports:
     readr (>= 2.1.5),
     stringr (>= 1.5.1),
     fs (>= 1.6.4),
-    digest
+    digest,
+    htmltools
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
 Suggests: 
