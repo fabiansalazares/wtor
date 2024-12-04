@@ -9,6 +9,7 @@ get_tariff_preferential(
   .partner,
   .full_names = T,
   .last_period = T,
+  .year = NULL,
   .nocache = F
 )
 }
@@ -20,6 +21,8 @@ get_tariff_preferential(
 \item{.full_names}{Logical. Include a column called "full_name" containing the description for the HS6 codes.}
 
 \item{.last_period}{Logical. Keep only values from the most recent period available. Default is TRUE.}
+
+\item{.year}{Integer. Select year to download. If `NULL` it retrieves all the periods available.}
 
 \item{.nocache}{Logical. TRUE to disable caching of results.}
 }
