@@ -5,6 +5,7 @@
 #' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes.
 #' @param  .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
 #' @param  .year Integer. Select year to download. If `NULL` it retrieves all the periods available.
+#' @param  .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
 #' @param  .nocache Logical. TRUE to disable caching of results.
 #' @return A tibble containing the full list of NMF tariffs applied.
 #' @export
@@ -13,6 +14,7 @@ get_tariff_nmf <- function(
     .full_names = T,
     .last_period = T,
     .year = NULL,
+    .products_or_sectors = "all",
     .nocache = F
 ) {
 
@@ -42,7 +44,7 @@ get_tariff_nmf <- function(
     .tariffs_nmf_df <- get_timeseries_data(
       code = "HS_A_0015",
       reporting_economies = .economy_code,
-      products_or_sectors = "all",
+      products_or_sectors = .products_or_sectors,
       time_period = .year,
       pageitems = 999999,
       nocache = .nocache
@@ -52,7 +54,7 @@ get_tariff_nmf <- function(
     .tariffs_nmf_df <- get_timeseries_data(
       code = "HS_A_0015",
       reporting_economies = .economy_code,
-      products_or_sectors = "all",
+      products_or_sectors = .products_or_sectors,
       time_period = "default",
       pageitems = 999999,
       nocache = .nocache
@@ -65,7 +67,7 @@ get_tariff_nmf <- function(
     .tariffs_nmf_df <- get_timeseries_data(
       code = "HS_A_0015",
       reporting_economies = .economy_code,
-      products_or_sectors = "all",
+      products_or_sectors = .products_or_sectors,
       time_period = "all",
       pageitems = 999999,
       nocache = .nocache
@@ -111,6 +113,7 @@ get_tariff_nmf <- function(
 #' @param .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes.
 #' @param .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
 #' @param .year Integer. Select year to download. If `NULL` it retrieves all the periods available.
+#' @param .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
 #' @param .nocache Logical. TRUE to disable caching of results.
 #' @return A tibble containing the full list of NMF tariffs applied.
 #' @export
@@ -120,6 +123,7 @@ get_tariff_preferential <- function(
     .full_names = T,
     .last_period = T,
     .year = NULL,
+    .products_or_sectors = "all",
     .nocache = F
 ) {
 
@@ -156,7 +160,7 @@ get_tariff_preferential <- function(
       reporting_economies = .economy_code,
       partner_economies = .partner_code,
       time_period = .year,
-      products_or_sectors = "all",
+      products_or_sectors = .products_or_sectors,
       pageitems = 999999,
       nocache = .nocache
     )
@@ -166,7 +170,7 @@ get_tariff_preferential <- function(
       code = "HS_P_0070",
       reporting_economies = .economy_code,
       partner_economies = .partner_code,
-      products_or_sectors = "all",
+      products_or_sectors = .products_or_sectors,
       pageitems = 999999,
       nocache = .nocache
     )
@@ -180,7 +184,7 @@ get_tariff_preferential <- function(
       reporting_economies = .economy_code,
       partner_economies = .partner_code,
       time_period = "all",
-      products_or_sectors = "all",
+      products_or_sectors = .products_or_sectors,
       pageitems = 999999,
       nocache = .nocache
     )
@@ -521,7 +525,7 @@ get_services_exports <- function(
 
 #' Helper function for `get_products_sectors()`: retrieve full names for HS products and sectores
 #' @param .hs_level Numeric. HS Level. Default is 6
-#' @param  .nocache Logical. TRUE to disable caching of results.
+#' @param .nocache Logical. TRUE to disable caching of results.
 #' @param .lang Character string. Language of the returned output. Default is "1". "1" for English, "2" for French and "3" for Spanish.
 #' @return A tibble containing the full list of NMF tariffs applied.
 #' @export
