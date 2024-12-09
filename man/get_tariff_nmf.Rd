@@ -9,6 +9,7 @@ get_tariff_nmf(
   .full_names = T,
   .last_period = T,
   .year = NULL,
+  .products_or_sectors = "all",
   .nocache = F
 )
 }
@@ -20,6 +21,8 @@ get_tariff_nmf(
 \item{.last_period}{Logical. Keep only values from the most recent period available. Default is TRUE.}
 
 \item{.year}{Integer. Select year to download. If `NULL` it retrieves all the periods available.}
+
+\item{.products_or_sectors}{Character string. Products or sectors to download. By default `"all"`.}
 
 \item{.nocache}{Logical. TRUE to disable caching of results.}
 }
