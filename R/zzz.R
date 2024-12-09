@@ -1,9 +1,11 @@
-#' Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTOR_CACHE_DIR
+#' Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTO_R_CACHE_DIR
 #' @param type Character string. Choose between types of cache to be created. Either 'disk' or 'memory'. Default is 'disk'
 create_cache <- function(type="disk") {
-  cache_disk_dir <- Sys.getenv("WTOR_CACHE_DIR")
+  cache_disk_dir <- Sys.getenv("WTO_R_CACHE_DIR")
+
   if(cache_disk_dir == ""){
     cache_disk_dir <- paste0(tools::R_user_dir("wtor", which="data"), "/cache")
+    message("No cache disk has been set. Using default: ", cache_disk_dir)
   }
 
   if(type=="disk") {
@@ -19,7 +21,9 @@ create_cache <- function(type="disk") {
         warn_ref_objects = TRUE
       )
     )
-  } else if (type=="memory") {
+  }
+
+  if (type=="memory") {
     return(
       cachem::cache_mem(
         max_age = 60*60*24*30, # in seconds, 30 days
@@ -27,9 +31,9 @@ create_cache <- function(type="disk") {
         warn_ref_objects = TRUE
       )
     )
-  } else {
-    stop("wtor: create_cache(): type must be either 'disk' or 'memory'.")
   }
+
+  stop("wtor: create_cache(): type must be either 'disk' or 'memory'.")
 }
 
 #' Clean the local cache.

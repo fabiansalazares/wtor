@@ -2,7 +2,7 @@
 % Please edit documentation in R/zzz.R
 \name{create_cache}
 \alias{create_cache}
-\title{Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTOR_CACHE_DIR}
+\title{Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTO_R_CACHE_DIR}
 \usage{
 create_cache(type = "disk")
 }
@@ -10,5 +10,5 @@ create_cache(type = "disk")
 \item{type}{Character string. Choose between types of cache to be created. Either 'disk' or 'memory'. Default is 'disk'}
 }
 \description{
-Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTOR_CACHE_DIR
+Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTO_R_CACHE_DIR
 }
