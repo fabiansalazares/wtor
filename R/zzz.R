@@ -1,3 +1,4 @@
+
 #' Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTO_R_CACHE_DIR
 #' @param type Character string. Choose between types of cache to be created. Either 'disk' or 'memory'. Default is 'disk'
 create_cache <- function(type="disk") {
@@ -45,9 +46,6 @@ clean_cache <- function() {
   wtor_env$cache <- create_cache()
 }
 
-#' Create an environment object in which to store the local cache object.
-wtor_env <- new.env(parent = emptyenv())
-wtor_env$cache <- create_cache()
 
 .onLoad <- function(...) {
 
@@ -81,4 +79,6 @@ set_cached_object <- function(key, value) {
   wtor_env$cache$set(key, value)
 }
 
-
+#' Create an environment object in which to store the local cache object.
+wtor_env <- new.env(parent = emptyenv())
+wtor_env$cache <- create_cache()
