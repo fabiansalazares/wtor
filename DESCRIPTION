@@ -20,7 +20,8 @@ Imports:
     stringr (>= 1.5.1),
     fs (>= 1.6.4),
     digest,
-    htmltools
+    htmltools,
+    feather
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
 Suggests: 

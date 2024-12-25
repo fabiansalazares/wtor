@@ -2,17 +2,19 @@
 #' Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTO_R_CACHE_DIR
 #' @param type Character string. Choose between types of cache to be created. Either 'disk' or 'memory'. Default is 'disk'
 create_cache <- function(type="disk") {
-  cache_disk_dir <- Sys.getenv("WTO_R_CACHE_DIR")
-
-  if(cache_disk_dir == ""){
-    cache_disk_dir <- sprintf(
-      "%s/cache",
-      tools::R_user_dir("wtor", which="data")
-    )
-    message("No cache disk has been set. Using default: ", cache_disk_dir)
-  }
 
   if(type=="disk") {
+
+    cache_disk_dir <- Sys.getenv("WTO_R_CACHE_DIR")
+
+    if(cache_disk_dir == ""){
+      cache_disk_dir <- sprintf(
+        "%s/cache",
+        tools::R_user_dir("wtor", which="data")
+      )
+      message("No cache disk has been set. Using default: ", cache_disk_dir)
+    }
+
     if(!fs::dir_exists(cache_disk_dir)) {
       fs::dir_create(cache_disk_dir)
     }
@@ -22,7 +24,10 @@ create_cache <- function(type="disk") {
         dir = cache_disk_dir,
         max_age = 60*60*24*30, # in seconds, 30 days
         destroy_on_finalize = FALSE, # so that cached objects stayed between sessions
-        warn_ref_objects = TRUE
+        warn_ref_objects = TRUE,
+        read_fn = feather::read_feather,
+        write_fn = feather::write_feather,
+        extension = ".feather"
       )
     )
   }
@@ -45,7 +50,6 @@ clean_cache <- function() {
   wtor_env$cache$destroy()
   wtor_env$cache <- create_cache()
 }
-
 
 .onLoad <- function(...) {
 
