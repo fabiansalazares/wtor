@@ -344,8 +344,6 @@ get_timeseries_data <- function(
 
       request_post_body <- glue::glue("{{\n{request_post_body},\n{offset_line}\n}}")
 
-      # message(request_post_body)
-
       request_completed <- FALSE
       request_attempts <- 0
       while(!request_completed & request_attempts < request_max_attempts) {
@@ -370,6 +368,11 @@ get_timeseries_data <- function(
             message("Attempting again ", request_attempts, "/", request_max_attempts)
           }
         )
+      }
+
+      if(!request_completed) {
+        message("Request was not completed. Stopping with last status code")
+        stop(response$status_code)
       }
 
       if(response$status_code != 200) {
