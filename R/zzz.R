@@ -4,7 +4,10 @@ create_cache <- function(type="disk") {
   cache_disk_dir <- Sys.getenv("WTO_R_CACHE_DIR")
 
   if(cache_disk_dir == ""){
-    cache_disk_dir <- paste0(tools::R_user_dir("wtor", which="data"), "/cache")
+    cache_disk_dir <- sprintf(
+      "%s/cache",
+      tools::R_user_dir("wtor", which="data")
+    )
     message("No cache disk has been set. Using default: ", cache_disk_dir)
   }
 
