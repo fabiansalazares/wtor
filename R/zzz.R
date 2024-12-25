@@ -2,9 +2,7 @@
 #' Create a local `cachem` object to store the local cache, either in disk or memory. Path to cache dir can be set at environment variable WTO_R_CACHE_DIR
 #' @param type Character string. Choose between types of cache to be created. Either 'disk' or 'memory'. Default is 'disk'
 create_cache <- function(type="disk") {
-
   if(type=="disk") {
-
     cache_disk_dir <- Sys.getenv("WTO_R_CACHE_DIR")
 
     if(cache_disk_dir == ""){
@@ -18,6 +16,8 @@ create_cache <- function(type="disk") {
     if(!fs::dir_exists(cache_disk_dir)) {
       fs::dir_create(cache_disk_dir)
     }
+
+    message("Creating cache at: ", cache_disk_dir)
 
     return(
       cachem::cache_disk(
