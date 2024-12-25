@@ -7,7 +7,7 @@ create_cache <- function(type="disk") {
 
     if(cache_disk_dir == ""){
       cache_disk_dir <- sprintf(
-        "%s/cache",
+        "%s",
         tools::R_user_dir("wtor", which="data")
       )
       message("No cache disk has been set. Using default: ", cache_disk_dir)
