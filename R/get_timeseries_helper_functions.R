@@ -1,11 +1,10 @@
-
-
 #' Helper function for `get_timeseries_data()`: retrieve all NMF tariffs for a given reporting economy.
 #' @param  .economy Character string. Reporting economy code or name.
-#' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes.
+#' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes. Default is FALSE.
 #' @param  .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
 #' @param  .year Integer. Select year to download. If `NULL` it retrieves all the periods available.
 #' @param  .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
+#' @param  .ad_valorem_equivalents Logical. If TRUE, request the series ('HS_A_0015') that includes ad-valorem equivalent tariff rates. Default is FALSE.
 #' @param  .nocache Logical. TRUE to disable caching of results.
 #' @return A tibble containing the full list of NMF tariffs applied.
 #' @export
@@ -15,9 +14,48 @@ get_tariff_nmf <- function(
     .last_period = T,
     .year = NULL,
     .products_or_sectors = "all",
+    .ad_valorem_equivalents=FALSE,
+    .nocache = F
+    ) {
+
+  get_tariff_mfn(
+    .economy=.economy,
+    .full_names = .full_names,
+    .last_period = .last_period,
+    .year = .year,
+    .products_or_sectors = .products_or_sectors,
+    .ad_valorem_equivalents=.ad_valorem_equivalents,
+    .nocache = .nocache
+  )
+
+}
+
+#' Helper function for `get_timeseries_data()`: retrieve all NMF tariffs for a given reporting economy.
+#' @param  .economy Character string. Reporting economy code or name.
+#' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes. Default is FALSE.
+#' @param  .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
+#' @param  .year Integer. Select year to download. If `NULL` it retrieves all the periods available.
+#' @param  .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
+#' @param  .ad_valorem_equivalents Logical. If TRUE, request the series ('HS_A_0015') that includes ad-valorem equivalent tariff rates. Default is FALSE.
+#' @param  .nocache Logical. TRUE to disable caching of results.
+#' @return A tibble containing the full list of NMF tariffs applied.
+#' @export
+get_tariff_mfn <- function(
+    .economy,
+    .full_names = FALSE,
+    .last_period = TRUE,
+    .year = NULL,
+    .products_or_sectors = "all",
+    .ad_valorem_equivalents=FALSE,
     .nocache = F
 ) {
 
+
+  requested_code <- "HS_A_0010"
+
+  if (.ad_valorem_equivalents) {
+    requested_code <- "HS_A_0015"
+  }
 
   # retrieve the code corresponding to the economy passed as argument in .economy, if necessary, or return if error
   .economy_code <- .economy
@@ -42,7 +80,7 @@ get_tariff_nmf <- function(
   # retrieve NMF tariffs data
   if(!is.null(.year)) {
     .tariffs_nmf_df <- get_timeseries_data(
-      code = "HS_A_0015",
+      code = requested_code,
       reporting_economies = .economy_code,
       products_or_sectors = .products_or_sectors,
       time_period = .year,
@@ -52,7 +90,7 @@ get_tariff_nmf <- function(
 
   } else if(.last_period) {
     .tariffs_nmf_df <- get_timeseries_data(
-      code = "HS_A_0015",
+      code = requested_code,
       reporting_economies = .economy_code,
       products_or_sectors = .products_or_sectors,
       time_period = "default",
@@ -65,7 +103,7 @@ get_tariff_nmf <- function(
       dplyr::filter(as.integer(year) == max(as.integer(year)))
   } else{
     .tariffs_nmf_df <- get_timeseries_data(
-      code = "HS_A_0015",
+      code = requested_code,
       reporting_economies = .economy_code,
       products_or_sectors = .products_or_sectors,
       time_period = "all",
