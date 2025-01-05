@@ -121,7 +121,7 @@ get_timeseries_data <- function(
     request_max_attempts = 10
     ) {
 
-  # check that an indicator code has been passed as argument
+  # check that an indicator code has been passed as argument -----
   if(is.null(code)) {
     stop("wtor: get_timeseries: no code was passed as argument, but it is required.")
   }
@@ -137,7 +137,7 @@ get_timeseries_data <- function(
     partner_economies_codes <- ifelse(partner_economies=="all", "all", check_partner_economies(partner_economies))
   }
 
-  # generate a cache key and retrieve from cache if it does exist
+  # generate a cache key and retrieve from cache if it does exist ----
   cache_key <- tolower(
     paste0(
       "timeseries_",
@@ -160,7 +160,7 @@ get_timeseries_data <- function(
 
   message("cache_key: ", cache_key)
 
-  # retrieve from cache if existing
+  # retrieve from cache if existing -----
   cached_timeseries <- get_cached_object(key=cache_key)
 
   if(!is.null(cached_timeseries) & !nocache) {
@@ -184,15 +184,15 @@ get_timeseries_data <- function(
 
   message("Datapoints to be retrieved: ", datapoints)
 
-  # retrieve data from WTO API
+  # retrieve data from WTO API -----
   request_url <- "http://api.wto.org/timeseries/v1/data"
 
-  # generate body of POST request - line by line of the JSON object
+  # generate body of POST request - line by line of the JSON object -----
   ## indicator
   # indicator_line <- glue::glue('"i": "{code}"')
   indicator_line <- sprintf('"i": "%s"', code)
 
-  ## reporting economies ----
+  ## reporting economies -----
   if(is.null(reporting_economies_codes)) {
     reporting_economies_line <- NULL
   } else {
@@ -216,7 +216,7 @@ get_timeseries_data <- function(
     }
   }
 
-  ## time period
+  ## time period -----
   time_period_line <- glue::glue('"ps": "{time_period}"')
 
   ## products or sectors
@@ -231,7 +231,7 @@ get_timeseries_data <- function(
     }
   }
 
-  ## include subproducts or subsectors
+  ## include subproducts or subsectors ------
   subproducts_or_subsectors <- ifelse(
     subproducts_subsectors,
     "true",
@@ -239,34 +239,34 @@ get_timeseries_data <- function(
   )
   subproducts_or_subsectors_line <- glue::glue('"spc": {subproducts_or_subsectors}')
 
-  ## format
+  ## format ------
   if(!format_output %in% c("json", "csv")) {
     stop("wtor: get_timeseries_data: format_output must be either json or csv")
   }
   format_output_line <- glue::glue('"fmt": "{format_output}"')
 
-  ## mode
+  ## mode ------
   if(!mode_output %in% c("full", "codes")) {
     stop("wtor: get_timeseries_data: mode argument must be either 'full' or 'codes'.")
   }
   # mode_output_line <- glue::glue('"mode": "{mode_output}"')
   mode_output_line <- sprintf('"mode": "%s"', mode_output)
 
-  ## decimals
+  ## decimals ------
   decimals_line <- as.character(decimals)
   # decimals_line <- glue::glue('"dec": "{decimals_line}"')
   decimals_line <- sprintf('"dec": "%s"', decimals_line)
 
 
-  # by default, .max_records will be set to the number of expected datapoints
+  # by default, .max_records will be set to the number of expected datapoints ------
   .max_records <- datapoints
 
-  # if argument max_records has been set, .max_records will be set to its value
+  # if argument max_records has been set, .max_records will be set to its value ------
   if(!is.null(max_records)) {
     .max_records <- max_records
   }
 
-  # .max_records must not be greater than 1M in any case
+  # .max_records must not be greater than 1M in any case ------
   if(.max_records > 999999) {
     .max_records <- 999999
   }
@@ -274,7 +274,7 @@ get_timeseries_data <- function(
   .max_records <- format(.max_records, scientific=FALSE)
   max_records_line <- sprintf('"max": %s', .max_records)
 
-  ## head
+  ## head ------
   if(!heading_style %in% c("H", "M")) {
     stop("wtor: get_timeseries_data: heading_style must be either 'H' or 'M'")
   }
@@ -283,7 +283,7 @@ get_timeseries_data <- function(
   ## lang
   lang_line <- glue::glue('"lang": 1')
 
-  ## metadata to include
+  ## metadata to include ------
   meta <- ifelse(
     meta,
     "true",
@@ -317,6 +317,7 @@ get_timeseries_data <- function(
   )
 
 
+  # pagination -----
   if(nopagination) {
     offset_vector <- c(0)
     message("Pagination has been disabled.")
@@ -334,7 +335,7 @@ get_timeseries_data <- function(
     }
   }
 
-
+  # post query -----
   timeseries_data_df <- lapply(
     X=offset_vector,
     FUN=function(.offset) {
@@ -377,6 +378,7 @@ get_timeseries_data <- function(
 
       if(response$status_code != 200) {
         stop("wtor: get_timeseries_data: HTTP code returned: ", response$status_code, "\n", httr::content(response)$errors$SQL[1])
+        # stop(response$status_code, "\n", httr::content(response)$errors$SQL[1])
       }
 
       if(format_output=="csv") {
@@ -428,8 +430,10 @@ get_timeseries_data <- function(
   ) |>
     dplyr::bind_rows()
 
-  set_cached_object(key=cache_key,
-                    value= timeseries_data_df)
+  set_cached_object(
+    key=cache_key,
+    value= timeseries_data_df
+    )
 
   return(timeseries_data_df)
 

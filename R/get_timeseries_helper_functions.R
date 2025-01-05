@@ -1,3 +1,4 @@
+
 #' Helper function for `get_timeseries_data()`: retrieve all NMF tariffs for a given reporting economy.
 #' @param  .economy Character string. Reporting economy code or name.
 #' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes. Default is FALSE.
@@ -71,7 +72,7 @@ get_tariff_mfn <- function(
   # if the requested economy is an EU-member state, return NULL and display warning: the requested economy should be European Union instead.
   if(.economy_code %in% (wtor::get_reporting_economies(gp = "918") |> _$code)) {
     message(
-      sprintf("%s is a EU member. To retrieve the NMF schedule of a EU-member state, please request instead the NMF tariff schedule for European Union.",
+      sprintf("%s is a EU member. To retrieve the MFN schedule of a EU-member state, please request instead the MFN tariff schedule for European Union.",
               .economy))
     message("Returning NULL")
     return(NULL)
@@ -88,7 +89,10 @@ get_tariff_mfn <- function(
       nocache = .nocache
     )
 
-  } else if(.last_period) {
+  }
+
+
+  if(.last_period) {
     .tariffs_nmf_df <- get_timeseries_data(
       code = requested_code,
       reporting_economies = .economy_code,
