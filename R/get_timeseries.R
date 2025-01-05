@@ -95,7 +95,8 @@ check_economies_names_codes <- function(
 #' @param max_records Character string. Maximum number of rows to return. Default is NULL. If NULL, the maximum number of rows will equal the number of datapoints returned by get_timeseries_data_count()
 #' @param heading_style Character string. Either "H" for human-readable headers and "M" for machine-readable codes.
 #' @param meta Logical. TRUE to include metadata.
-#' @param noitemcount Logical.
+#' @param lang Integer. Set to 1 for English, 2 for French or 3 for Spanish
+#' @param noitemcount Logical. Set to TRUE to disabling querying for the number of data points before data retrieval. Default is FALSE.
 #' @param nocache Logical. TRUE to disable caching of results.
 #' @param nopagination Logical. TRUE to disable pagination of requests.
 #' @param pageitems Numeric. Number of rows per paginated request. By default 10.000
@@ -116,6 +117,7 @@ get_timeseries_data <- function(
     offset=0, # off - records to offset
     max_records=NULL, # max maximum number of records returned heading_style="M",
     meta=FALSE, # include metadata,
+    noitemcount = FALSE,
     nocache=F,
     nopagination=F,
     pageitems = 10000,
@@ -252,7 +254,7 @@ get_timeseries_data <- function(
 
   ## decimals ------
   decimals_line <- as.character(decimals)
-  # decimals_line <- glue::glue('"dec": "{decimals_line}"')
+
   decimals_line <- sprintf('"dec": "%s"', decimals_line)
 
 
@@ -279,7 +281,8 @@ get_timeseries_data <- function(
   heading_style_line <- glue::glue('"head": "{heading_style}"')
 
   ## lang
-  lang_line <- glue::glue('"lang": 1')
+  # lang_line <- glue::glue('"lang": 1')
+  lang_line <- sprintf('"lang": "%s"', .lang)
 
   ## metadata to include ------
   meta <- ifelse(
@@ -288,7 +291,8 @@ get_timeseries_data <- function(
     "false"
   )
 
-  meta_line<- glue::glue('"meta": {meta}')
+  # meta_line<- glue::glue('"meta": {meta}')
+  meta_line <- sprintf('"meta": "%s"', meta_line)
 
   lines_list <- c(
     indicator_line,

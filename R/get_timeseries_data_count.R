@@ -1,11 +1,24 @@
 #' Retrieve the amount of data points to be retrieved, for any given query to the `get_timeseries_data()`.
 #' @param code Character string. indicator code. Required.
-#' @param reporting_economies Character string. A vector or a scalar character string value containing the codes and/or names of the reporting economies.
+#' @param reporting_economies Character string. A vector or a scalar containing the codes and/or names of the reporting economies.
 #' @param partner_economies Character string. A vector or a scalar containing the codes and/or names of the partner economies. Not all indicators allow for this parameter.
 #' @param time_period Character string. A string containing either "default", "all", or specific periods according to the format described in https://apiportal.wto.org/api-details#api=version1&operation=post-data
 #' @param products_or_sectors Character string. A string containing either "default", "all", a specific product classification such as HS2, HS4, HS6, or a comma separated list of product codes belonging to AG,AGFOFI,MAIS,...
-#' @param subproducts_subsectors Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.
-#' @param nocache TRUE to disable caching of results.
+#' @param subproducts_subsectors Logical. Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.
+#' @param format_output Character string. jEither "csv" or "json", depending on the output format in which to obtain the response to the POST request. It does not have any impact on the function returned dataframe.
+#' @param mode_output Character string. Either "codes" (by default) or "full", depending on whether the columns in the returned dataframe will contain
+#' @param decimals Character string. Either "default" or a string containing the number of decimals that the output should contain.
+#' @param heading_style Character string. Either "H" for human-readable headers and "M" for machine-readable codes.
+#' @param offset Character string. Number of datapoints to offset in the request. Usefull if manual pagination is to be implemented.
+#' @param max_records Character string. Maximum number of rows to return. Default is NULL. If NULL, the maximum number of rows will equal the number of datapoints returned by get_timeseries_data_count()
+#' @param heading_style Character string. Either "H" for human-readable headers and "M" for machine-readable codes.
+#' @param meta Logical. TRUE to include metadata.
+#' @param noitemcount Logical.
+#' @param nocache Logical. TRUE to disable caching of results.
+#' @param nopagination Logical. TRUE to disable pagination of requests.
+#' @param pageitems Numeric. Number of rows per paginated request. By default 10.000
+#' @param request_max_attempts Numeric. Maximum number of request attempts.
+#' @return A tibble containing the request data.
 #' @export
 get_timeseries_data_count <- function(
     code,
