@@ -1,5 +1,149 @@
+#' Generic helper function for `get_timeseries_data()`
+#'
+#' Provides a simple wrapper to `get_timeseries_data()`.
+#' @param  .code Character string. The timeseries code to be retrieved.
+#' @param  .economy Character string. Reporting economy ISO three digit or three letters code, or its name in `get_reporting_economies()`.
+#' @param  .partner Character string. Partner economy ISO three digit or three letters code, or its name in `get_partner_economies()`.
+#' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes. Default is FALSE.
+#' @param  .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
+#' @param  .year Integer. Select year to download. If `NULL` it retrieves all the periods available.
+#' @param  .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
+#' @param  .ad_valorem_equivalents Logical. If TRUE, request the series ('HS_A_0015') that includes ad-valorem equivalent tariff rates. Default is FALSE.
+#' @param  .nocache Logical. TRUE to disable caching of results.
+#' @export
+get_wto_ts <- function(
+    .code,
+    .economy,
+    .partner=NULL,
+    .full_names = T,
+    .last_period = T,
+    .year = NULL,
+    .products_or_sectors = "all",
+    .ad_valorem_equivalents=FALSE,
+    .nocache = F
+) {
 
-#' Helper function for `get_timeseries_data()`: retrieve all NMF tariffs for a given reporting economy.
+  requested_code <- .code
+
+  # reporting economy: .economy ---------------
+  # retrieve the code corresponding to the economy passed as argument in .economy, if necessary, or return if error
+  .economy_code <- .economy
+
+  # if .economy is an iso 3 letters code
+  if(.economy %in% (get_reporting_economies() |> _$iso3A)) {
+    .economy_code <- get_reporting_economies() |> dplyr::filter(iso3A == .economy) |> _$code
+  }
+
+  # if .economy is the name of the country in get_reporting_economies()
+  if(.economy %in% (get_reporting_economies() |> _$name)) {
+    .economy_code <- get_reporting_economies() |> dplyr::filter(name == .economy) |> _$code
+  }
+
+  # if .economy is neither a 3 digit code, nor an iso 3 letters code nor the name
+  if(!.economy_code %in% (get_reporting_economies() |> _$code)) {
+    stop(sprintf("Economy %s is not a valid reporting economy code or name", .economy_code))
+  }
+
+  # partner economy: .partner ---------------
+  .partner_code <- .partner
+
+  if(!is.null(.partner)) {
+    # if .economy is an iso 3 letters code
+    if(.partner %in% (get_reporting_economies() |> _$iso3A)) {
+      .partner_code <- get_reporting_economies() |> dplyr::filter(iso3A == .partner) |> _$code
+    }
+
+    # if .partner is the name of the country in get_reporting_economies()
+    if(.partner %in% (get_reporting_economies() |> _$name)) {
+      .partner_code <- get_reporting_economies() |> dplyr::filter(name == .partner) |> _$code
+    }
+
+    # if .economy is neither a 3 digit code, nor an iso 3 letters code nor the name
+    if(!.partner %in% (get_reporting_economies() |> _$code)) {
+      stop(sprintf("Economy %s is not a valid reporting economy code or name", .economy_code))
+    }
+  }
+
+  # if the requested economy is an EU-member state, return NULL and display warning: the requested economy should be European Union instead.
+  if(.economy_code %in% (wtor::get_reporting_economies(gp = "918") |> _$code)) {
+    message(
+      sprintf("%s is a EU member. To retrieve the MFN schedule of a EU-member state, please request instead the MFN tariff schedule for European Union.",
+              .economy))
+    message("Returning NULL")
+    return(NULL)
+  }
+
+  # retrieve data
+  if(!is.null(.year)) {
+    .data_df <- get_timeseries_data(
+      code = requested_code,
+      reporting_economies = .economy,
+      partner_economy = .partner,
+      products_or_sectors = .products_or_sectors,
+      time_period = .year,
+      pageitems = 999999,
+      nocache = .nocache
+    )
+
+  } else {
+  # if only the last available period is to be retrieved
+    if(.last_period) {
+      .data_df <- get_timeseries_data(
+        code = requested_code,
+        reporting_economies = .economy_code,
+        products_or_sectors = .products_or_sectors,
+        time_period = "default",
+        pageitems = 999999,
+        nocache = .nocache
+      )
+
+      .data_df <-
+        .data_df |>
+        dplyr::filter(as.integer(year) == max(as.integer(year)))
+    } else{
+      .data_df <- get_timeseries_data(
+        code = requested_code,
+        reporting_economies = .economy_code,
+        products_or_sectors = .products_or_sectors,
+        time_period = "all",
+        pageitems = 999999,
+        nocache = .nocache
+      )
+    }
+  }
+
+  # include a column called "full_name" containing the full description of the HS6 code
+  if(.full_names) {
+    hs6_code_names_df <- get_products_sectors("HS") |>
+      dplyr::mutate(
+        level1 = substr(code, 1, 2),
+        level2 = substr(code, 1, 4),
+        level3 = code
+      )
+
+    hs6_code_names_df <- hs6_code_names_df |>
+      # Join the tibble with itself to get descriptions for each level
+      dplyr::left_join(dplyr::select(hs6_code_names_df, code, name), by = c("level1" = "code"), suffix = c("", "_level1")) |>
+      dplyr::left_join(dplyr::select(hs6_code_names_df, code, name), by = c("level2" = "code"), suffix = c("", "_level2")) |>
+      # Combine descriptions for rows with 6-character codes
+      dplyr::mutate(
+        full_name= dplyr::case_when(
+          nchar(code) == 6 ~ paste(name_level1, name_level2, name, sep = " - "),
+          TRUE ~ name
+        )
+      ) |>
+      dplyr::select(code, full_name)
+
+    .data_df <- .data_df |>
+      dplyr::left_join(
+        hs6_code_names_df |> dplyr::rename(productorsectorcode=code), by="productorsectorcode"
+      )
+  }
+
+  return(.data_df)
+}
+
+#' Helper function for `get_timeseries_data()`: retrieve all MFN tariffs for a given reporting economy.
 #' @param  .economy Character string. Reporting economy code or name.
 #' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes. Default is FALSE.
 #' @param  .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
@@ -7,7 +151,7 @@
 #' @param  .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
 #' @param  .ad_valorem_equivalents Logical. If TRUE, request the series ('HS_A_0015') that includes ad-valorem equivalent tariff rates. Default is FALSE.
 #' @param  .nocache Logical. TRUE to disable caching of results.
-#' @return A tibble containing the full list of NMF tariffs applied.
+#' @return A tibble containing the full list of MFN tariffs applied.
 #' @export
 get_tariff_nmf <- function(
     .economy,
@@ -31,7 +175,7 @@ get_tariff_nmf <- function(
 
 }
 
-#' Helper function for `get_timeseries_data()`: retrieve all NMF tariffs for a given reporting economy.
+#' Helper function for `get_timeseries_data()`: retrieve all MFN tariffs for a given reporting economy.
 #' @param  .economy Character string. Reporting economy code or name.
 #' @param  .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes. Default is FALSE.
 #' @param  .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
@@ -39,7 +183,7 @@ get_tariff_nmf <- function(
 #' @param  .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
 #' @param  .ad_valorem_equivalents Logical. If TRUE, request the series ('HS_A_0015') that includes ad-valorem equivalent tariff rates. Default is FALSE.
 #' @param  .nocache Logical. TRUE to disable caching of results.
-#' @return A tibble containing the full list of NMF tariffs applied.
+#' @return A tibble containing the full list of MFN tariffs applied.
 #' @export
 get_tariff_mfn <- function(
     .economy,
@@ -50,7 +194,6 @@ get_tariff_mfn <- function(
     .ad_valorem_equivalents=FALSE,
     .nocache = F
 ) {
-
 
   requested_code <- "HS_A_0010"
 
@@ -78,7 +221,7 @@ get_tariff_mfn <- function(
     return(NULL)
   }
 
-  # retrieve NMF tariffs data
+  # retrieve MFN tariffs data
   if(!is.null(.year)) {
     .tariffs_nmf_df <- get_timeseries_data(
       code = requested_code,
@@ -157,7 +300,7 @@ get_tariff_mfn <- function(
 #' @param .year Integer. Select year to download. If `NULL` it retrieves all the periods available.
 #' @param .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
 #' @param .nocache Logical. TRUE to disable caching of results.
-#' @return A tibble containing the full list of NMF tariffs applied.
+#' @return A tibble containing the full list of MFN tariffs applied.
 #' @export
 get_tariff_preferential <- function(
     .economy,
@@ -272,7 +415,7 @@ get_tariff_preferential <- function(
 #' @param .hs6_products Logical. Whether to return values by HS6 code Default is MTN products
 #' @param .products Character string. Products to filter for. Default is "all", which results in no filtering.
 #' @param  .nocache Logical. TRUE to disable caching of results.
-#' @return A tibble containing the full list of NMF tariffs applied.
+#' @return A tibble containing the full list of MFN tariffs applied.
 #' @export
 get_bilateral_goods_trade <- function(
     .economy,
@@ -382,7 +525,7 @@ get_bilateral_goods_trade <- function(
 #' @param .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes.
 #' @param .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
 #' @param  .nocache Logical. TRUE to disable caching of results.
-#' @return A tibble containing the full list of NMF tariffs applied.
+#' @return A tibble containing the full list of MFN tariffs applied.
 #' @export
 get_services_imports <- function(
     .economy,
@@ -476,7 +619,7 @@ get_services_imports <- function(
 #' @param .full_names Logical. Include a column called "full_name" containing the description for the HS6 codes.
 #' @param .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
 #' @param  .nocache Logical. TRUE to disable caching of results.
-#' @return A tibble containing the full list of NMF tariffs applied.
+#' @return A tibble containing the full list of MFN tariffs applied.
 #' @export
 get_services_exports <- function(
     .economy,
@@ -569,7 +712,7 @@ get_services_exports <- function(
 #' @param .hs_level Numeric. HS Level. Default is 6
 #' @param .nocache Logical. TRUE to disable caching of results.
 #' @param .lang Character string. Language of the returned output. Default is "1". "1" for English, "2" for French and "3" for Spanish.
-#' @return A tibble containing the full list of NMF tariffs applied.
+#' @return A tibble containing the full list of MFN tariffs applied.
 #' @export
 get_names_hs_products <- function(
     .hs_level=6,

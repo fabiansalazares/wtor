@@ -31,7 +31,6 @@ get_timeseries_data_count <- function(
     partner_economies_codes <- ifelse(partner_economies=="all", "all", paste(check_partner_economies(partner_economies), collapse=","))
   }
 
-
   cache_key <- tolower(
     paste0(
       "timeseriesdatacount_",
@@ -48,16 +47,6 @@ get_timeseries_data_count <- function(
     )
   ) |>
     digest::digest(algo="md5")
-
-#
-#   cached_timeseries_data_count <- get_cached_object(cache_key)
-#
-#   if(!is.null(cached_timeseries_data_count) & !nocache) {
-#     message("get_timeseries_data_count(): returning from cache.")
-#     return(cached_timeseries_data_count)
-#   }
-
-
 
   include_sub_products_sectors_string <- ifelse(subproducts_subsectors,
                                                  "true",
