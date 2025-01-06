@@ -96,16 +96,17 @@ check_economies_names_codes <- function(
 #' @param heading_style Character string. Either "H" for human-readable headers and "M" for machine-readable codes.
 #' @param meta Logical. TRUE to include metadata.
 #' @param lang Integer. Set to 1 for English, 2 for French or 3 for Spanish
-#' @param noitemcount Logical. Set to TRUE to disabling querying for the number of data points before data retrieval. Default is FALSE.
+#' @param noitemcount Logical. Set to TRUE to disabling querying for the number of data points before data retrieval. Default is FALSE. Setting this argument to TRUE may interfere with pagination.
 #' @param nocache Logical. TRUE to disable caching of results.
 #' @param nopagination Logical. TRUE to disable pagination of requests.
 #' @param pageitems Numeric. Number of rows per paginated request. By default 10.000
 #' @param request_max_attempts Numeric. Maximum number of request attempts.
+#' @param debug_info Logical. Print debugging information. Default is FALSE.
 #' @return A tibble containing the request data.
 #' @export
 get_timeseries_data <- function(
     code, # i,
-    reporting_economies, # r a vector containing the names of reporting economies
+    reporting_economies, # r
     partner_economies=NULL, # p
     time_period="default", # ps
     products_or_sectors="default", # pc
@@ -115,13 +116,15 @@ get_timeseries_data <- function(
     decimals="default", # dec number of decimals
     heading_style="M", # head heading style
     offset=0, # off - records to offset
-    max_records=NULL, # max maximum number of records returned heading_style="M",
+    max_records=NULL, # max maximum number of records returned
     meta=FALSE, # include metadata,
+    lang = "1",
     noitemcount = FALSE,
     nocache=F,
     nopagination=F,
-    pageitems = 10000,
-    request_max_attempts = 10
+    pageitems = 999999,
+    request_max_attempts = 10,
+    debug_info=FALSE
     ) {
 
   # check that an indicator code has been passed as argument -----
@@ -160,7 +163,7 @@ get_timeseries_data <- function(
   ) |>
     digest::digest(algo="md5")
 
-  # message("cache_key: ", cache_key)
+  if(debug_info) message("cache_key: ", cache_key)
 
   # retrieve from cache if existing -----
   cached_timeseries <- get_cached_object(key=cache_key)
@@ -170,12 +173,11 @@ get_timeseries_data <- function(
     return(cached_timeseries)
   }
 
-  # perform pagination, f allowed and needed
   # if pagination is not disabled, and the number of datapoints is greater than the maximum number of items per page,
   # the request will be split in n=datapoints/maxitems, where datapoints is the expected number of datapoints, and
   # maxitems is the maximum number allowed to each request. This parameter can be set as an argument
   datapoints <- get_timeseries_data_count(
-    code,
+    code= code,
     reporting_economies = reporting_economies,
     partner_economies = partner_economies,
     time_period=time_period,
@@ -217,7 +219,8 @@ get_timeseries_data <- function(
   }
 
   ## time period -----
-  time_period_line <- glue::glue('"ps": "{time_period}"')
+  # time_period_line <- glue::glue('"ps": "{time_period}"')
+  time_period_line <- sprintf('"ps": "%s"', time_period)
 
   ## products or sectors
   if(is.null(products_or_sectors)) {
@@ -253,9 +256,8 @@ get_timeseries_data <- function(
   mode_output_line <- sprintf('"mode": "%s"', mode_output)
 
   ## decimals ------
-  decimals_line <- as.character(decimals)
-
-  decimals_line <- sprintf('"dec": "%s"', decimals_line)
+  # decimals_line <- as.character(decimals)
+  decimals_line <- sprintf('"dec": "%s"', decimals |> as.character())
 
 
   # by default, .max_records will be set to the number of expected datapoints ------
@@ -266,23 +268,17 @@ get_timeseries_data <- function(
     .max_records <- max_records
   }
 
-  # .max_records must not be greater than 1M in any case ------
-  if(.max_records > 999999) {
-    .max_records <- 999999
-  }
 
-  .max_records <- format(.max_records, scientific=FALSE)
-  max_records_line <- sprintf('"max": %s', .max_records)
 
   ## head ------
   if(!heading_style %in% c("H", "M")) {
     stop("wtor: get_timeseries_data: heading_style must be either 'H' or 'M'")
   }
-  heading_style_line <- glue::glue('"head": "{heading_style}"')
+  # heading_style_line <- glue::glue('"head": "{heading_style}"')
+  heading_style_line <- sprintf('"head": "%s"', heading_style)
 
   ## lang
-  # lang_line <- glue::glue('"lang": 1')
-  lang_line <- sprintf('"lang": "%s"', .lang)
+  lang_line <- sprintf('"lang": %s', lang)
 
   ## metadata to include ------
   meta <- ifelse(
@@ -290,10 +286,41 @@ get_timeseries_data <- function(
     "true",
     "false"
   )
+  meta_line <- sprintf('"meta": %s', meta)
 
-  # meta_line<- glue::glue('"meta": {meta}')
-  meta_line <- sprintf('"meta": "%s"', meta_line)
 
+  # .max_records must not be greater than 1M in any case ------
+  if(.max_records > 999999) {
+    if(debug_info) message("max_records > 1e6. Truncating to 999999.")
+    .max_records <- 999999
+  }
+  .max_records <- format(.max_records, scientific=FALSE)
+
+  # pagination -----
+  if(nopagination) {
+    offset_vector <- c(0)
+    message("Pagination has been disabled.")
+    if (datapoints > 1e6) {
+      stop("wtor: get_timeseries_data(): Number of datapoints to retrieve is greather than 1M. Pagination is required.")
+    }
+  } else {
+    if(datapoints < pageitems) {
+      offset_vector <- c(0)
+      if(debug_info) message("Less datapoints than items per request: all datapoints will be downloaded in one single request.")
+    } else {
+      # results will be paginated
+      # we calculate the number of items per request by dividing the total datapoints
+      offset_vector <- seq(from=0, to = datapoints, by=pageitems)
+      message("Requests: ", length(offset_vector))
+      message("Items by request: ", pageitems)
+      # we set .max_records to the pageitem size
+      .max_records <- pageitems
+    }
+  }
+
+  max_records_line <- sprintf('"max": %s', .max_records)
+
+  ## put together all the lines of POST request JSON object
   lines_list <- c(
     indicator_line,
     reporting_economies_line,
@@ -312,30 +339,13 @@ get_timeseries_data <- function(
 
   lines_list <- lines_list[!is.null(lines_list)]
 
-  ## put together all the lines of POST request JSON object
   request_post_body <- paste(
     lines_list,
     collapse = ",\n"
   )
 
 
-  # pagination -----
-  if(nopagination) {
-    offset_vector <- c(0)
-    message("Pagination has been disabled.")
-    if (datapoints > 1e6) {
-      stop("wtor: get_timeseries_data(): Number of datapoints to retrieve is greather than 1M.")
-    }
-  } else {
-    if(datapoints < pageitems) {
-      offset_vector <- c(0)
-    } else {
-      # we calculate the number of items per request by dividing the total datapoints
-      offset_vector <- seq(from=0, to = datapoints, by=pageitems)
-      message("Requests: ", length(offset_vector))
-      message("Items by request: ", pageitems)
-    }
-  }
+
 
   # post query -----
   timeseries_data_df <- lapply(
@@ -343,9 +353,16 @@ get_timeseries_data <- function(
     FUN=function(.offset) {
       message("Offset: ", .offset, "\t", round(.offset/datapoints*1e2,1), "%")
 
-      offset_line <- glue::glue('"off": {as.character(.offset)}')
+      # offset_line <- glue::glue('"off": {as.character(.offset)}')
+      offset_line <- sprintf('"off": %s', .offset)
 
-      request_post_body <- glue::glue("{{\n{request_post_body},\n{offset_line}\n}}")
+      # request_post_body <- glue::glue("{{\n{request_post_body},\n{offset_line}\n}}")
+      request_post_body <- sprintf("{\n%s,\n%s\n}", request_post_body, offset_line)
+
+      if(debug_info) {
+        message("request_post_body: ")
+        message(request_post_body)
+      }
 
       request_completed <- FALSE
       request_attempts <- 0
@@ -416,8 +433,6 @@ get_timeseries_data <- function(
       } else if(format_output=="json") {
         # json output
 
-        # message("Unpacking json")
-
         .timeseries_data_df <- jsonlite::fromJSON(httr::content(response, as="text")) |>
           _$Dataset |>
           dplyr::as_tibble() |>
@@ -432,6 +447,7 @@ get_timeseries_data <- function(
   ) |>
     dplyr::bind_rows()
 
+  # save to cache
   set_cached_object(
     key=cache_key,
     value= timeseries_data_df
