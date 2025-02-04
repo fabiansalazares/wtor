@@ -8,8 +8,8 @@
 #' @param  .last_period Logical. Keep only values from the most recent period available. Default is TRUE.
 #' @param  .year Integer. Select year to download. If `NULL` it retrieves all the periods available.
 #' @param  .products_or_sectors Character string. Products or sectors to download. By default `"all"`.
-#' @param  .ad_valorem_equivalents Logical. If TRUE, request the series ('HS_A_0015') that includes ad-valorem equivalent tariff rates. Default is FALSE.
 #' @param  .nocache Logical. TRUE to disable caching of results.
+#' @param .debug_info Logical. Print debugging information. Default is FALSE.
 #' @export
 get_wto_ts <- function(
     .code,
@@ -19,8 +19,8 @@ get_wto_ts <- function(
     .last_period = T,
     .year = NULL,
     .products_or_sectors = "all",
-    .ad_valorem_equivalents=FALSE,
-    .nocache = F
+    .nocache = F,
+    .debug_info = F
 ) {
 
   requested_code <- .code
@@ -82,7 +82,8 @@ get_wto_ts <- function(
       products_or_sectors = .products_or_sectors,
       time_period = .year,
       pageitems = 999999,
-      nocache = .nocache
+      nocache = .nocache,
+      debug_info = .debug_info
     )
 
   } else {
