@@ -6,18 +6,21 @@
 \usage{
 get_timeseries_data_count(
   code,
-  reporting_economies = "all",
+  reporting_economies,
   partner_economies = NULL,
   time_period = "default",
   products_or_sectors = "default",
   subproducts_subsectors = FALSE,
+  decimals = "default",
+  heading_style = "M",
+  meta = FALSE,
   nocache = F
 )
 }
 \arguments{
 \item{code}{Character string. indicator code. Required.}
 
-\item{reporting_economies}{Character string. A vector or a scalar character string value containing the codes and/or names of the reporting economies.}
+\item{reporting_economies}{Character string. A vector or a scalar containing the codes and/or names of the reporting economies.}
 
 \item{partner_economies}{Character string. A vector or a scalar containing the codes and/or names of the partner economies. Not all indicators allow for this parameter.}
 
@@ -25,9 +28,18 @@ get_timeseries_data_count(
 
 \item{products_or_sectors}{Character string. A string containing either "default", "all", a specific product classification such as HS2, HS4, HS6, or a comma separated list of product codes belonging to AG,AGFOFI,MAIS,...}
 
-\item{subproducts_subsectors}{Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.}
+\item{subproducts_subsectors}{Logical. Either TRUE or FALSE depending on whether to include or not subproducts and subsectors.}
 
-\item{nocache}{TRUE to disable caching of results.}
+\item{decimals}{Character string. Either "default" or a string containing the number of decimals that the output should contain.}
+
+\item{heading_style}{Character string. Either "H" for human-readable headers and "M" for machine-readable codes.}
+
+\item{meta}{Logical. TRUE to include metadata.}
+
+\item{nocache}{Logical. TRUE to disable caching of results.}
+}
+\value{
+An integer that contains the number of data points.
 }
 \description{
 Retrieve the amount of data points to be retrieved, for any given query to the `get_timeseries_data()`.

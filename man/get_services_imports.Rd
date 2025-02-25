@@ -24,7 +24,7 @@ get_services_imports(
 \item{.nocache}{Logical. TRUE to disable caching of results.}
 }
 \value{
-A tibble containing the full list of NMF tariffs applied.
+A tibble containing the full list of MFN tariffs applied.
 }
 \description{
 Helper function for `get_timeseries_data()`: retrieve services imports of a given economy

@@ -14,7 +14,7 @@ get_names_hs_products(.hs_level = 6, .nocache = F, .lang = "1")
 \item{.lang}{Character string. Language of the returned output. Default is "1". "1" for English, "2" for French and "3" for Spanish.}
 }
 \value{
-A tibble containing the full list of NMF tariffs applied.
+A tibble containing the full list of MFN tariffs applied.
 }
 \description{
 Helper function for `get_products_sectors()`: retrieve full names for HS products and sectores

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_timeseries_helper_functions.R
 \name{get_tariff_mfn}
 \alias{get_tariff_mfn}
-\title{Helper function for `get_timeseries_data()`: retrieve all NMF tariffs for a given reporting economy.}
+\title{Helper function for `get_timeseries_data()`: retrieve all MFN tariffs for a given reporting economy.}
 \usage{
 get_tariff_mfn(
   .economy,
@@ -30,8 +30,8 @@ get_tariff_mfn(
 \item{.nocache}{Logical. TRUE to disable caching of results.}
 }
 \value{
-A tibble containing the full list of NMF tariffs applied.
+A tibble containing the full list of MFN tariffs applied.
 }
 \description{
-Helper function for `get_timeseries_data()`: retrieve all NMF tariffs for a given reporting economy.
+Helper function for `get_timeseries_data()`: retrieve all MFN tariffs for a given reporting economy.
 }

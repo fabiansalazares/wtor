@@ -71,18 +71,31 @@ get_api_key <- function() {
 #' @param key Character string. Cached object key.
 #' @export
 get_cached_object <- function(key) {
-  return(
-    wtor_env$cache$get(key, missing = NULL)
-  )
+  if(!is.null(getOption("wtor_nocache"))) {
+    return(
+      wtor_env$cache$get(key, missing = NULL)
+    )
+  }
+
+  return(NULL)
+
 }
 
 #' Store an object in local cache.
 #' @param key Character string. Cached object key.
 #' @param value Tibble. Cached object.
 set_cached_object <- function(key, value) {
-  wtor_env$cache$set(key, value)
+  if(!is.null(getOption("wtor_nocache"))) {
+    return(
+      wtor_env$cache$set(key, value)
+    )
+  }
+
+  return(NULL)
 }
 
-#' Create an environment object in which to store the local cache object.
-wtor_env <- new.env(parent = emptyenv())
-wtor_env$cache <- create_cache()
+if(!is.null(getOption("wtor_nocache"))) {
+  #' Create an environment object in which to store the local cache object.
+  wtor_env <- new.env(parent = emptyenv())
+  wtor_env$cache <- create_cache()
+}
